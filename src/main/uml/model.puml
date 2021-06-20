@@ -1,0 +1,36 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+skinparam classFontStyle Bold
+skinparam style strictuml
+
+hide empty members
+
+class UMLClass {
+    -String name
+}
+
+class UMLPackage {
+    +UMLPackage(String name, UMLPackage parent)
+    +String getName()
+    +UMLPackage findOrCreatePackage(String name)
+    
+    -String name
+}
+
+class UMLRootPackage extends UMLPackage {
+    +UMLRootPackage()
+}
+
+class UMLModel {
+    +UMLModel(String name)
+    +addClass(Class clazz)
+    
+    -String name
+    -UMLRootPackage rootpkg
+}
+
+UMLModel -> UMLRootPackage
+UMLPackage *-> UMLPackage
+UMLPackage *--> UMLClass
+
+@enduml

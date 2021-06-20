@@ -1,0 +1,19 @@
+
+# Intellij specific stuff
+*.iml
+.idea
+
+# Exlipse specific stuff
+.classpath
+.project
+.settings
+
+# Build directory
+target
+
+# Standalone plantuml png files
+src/main/uml/**/*.png
+
+# Program's logs
+log_*.csv
+
