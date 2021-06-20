@@ -20,7 +20,7 @@ package io.github.m4x1m3.coffeeleaf;
 
 import java.util.HashMap;
 
-import io.github.m4x1m3.coffeeleaf.annotations.GenUML;
+import io.github.m4x1m3.coffeeleaf.generator.PUMLGenerator;
 import io.github.m4x1m3.coffeeleaf.model.UMLModel;
 import io.github.m4x1m3.coffeeleaf.utils.ReflectUtil;
 
@@ -31,24 +31,16 @@ import io.github.m4x1m3.coffeeleaf.utils.ReflectUtil;
  */
 public class CoffeeLeaf {
 	public static void main(String[] args) {
-		UMLConfig cfg = ReflectUtil.getConfig();
-		System.out.println(cfg.test());
+
+		UMLModel model = new UMLModel("default");
 		
 		HashMap<String, UMLModel> models = new HashMap<String, UMLModel>();
-		
 
-		for (Class<? extends Object> c : ReflectUtil.getGenUMLClasses()) {
-			for(String model : c.getAnnotation(GenUML.class).models()) {
-				if (!models.containsKey(model)) {
-					models.put(model, new UMLModel(model));
-				}
-				models.get(model).addClass(c);
-			}
+		for (Class<? extends Object> c : ReflectUtil.getClassesInPackages(new String[] {""})) {
+			model.addClass(c);
 		}
-
-		models.forEach((n, m) -> {
-			System.out.println(" --- ");
-			m.debug();
-		});
+		
+		PUMLGenerator out = new PUMLGenerator(System.out);
+		out.generate(model);
 	}
 }

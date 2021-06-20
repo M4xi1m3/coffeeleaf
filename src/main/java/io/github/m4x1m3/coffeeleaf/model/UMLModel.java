@@ -52,6 +52,10 @@ public class UMLModel {
 		new UMLClass(names.pop(), current);
 	}
 
+	public UMLRootPackage getRootPackage() {
+		return rootpkg;
+	}
+
 	public void debug() {
 		System.out.println("[MDL] " + name);
 		rootpkg.debug(0);

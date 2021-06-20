@@ -23,32 +23,21 @@ skinparam style strictuml
 
 hide empty members
 
-class UMLClass {
-    -String name
+package io.github.m4x1m3.coffeeleaf {
+package io.github.m4x1m3.coffeeleaf.utils {
+class ReflectUtil {}
 }
-
-class UMLPackage {
-    +UMLPackage(String name, UMLPackage parent)
-    +String getName()
-    +UMLPackage findOrCreatePackage(String name)
-    
-    -String name
+package io.github.m4x1m3.coffeeleaf.generator {
+class PUMLGenerator {}
 }
-
-class UMLRootPackage extends UMLPackage {
-    +UMLRootPackage()
+package io.github.m4x1m3.coffeeleaf.model {
+class UMLModel {}
+class UMLClass {}
+class UMLRootPackage {}
+class UMLPackage {}
 }
-
-class UMLModel {
-    +UMLModel(String name)
-    +addClass(Class clazz)
-    
-    -String name
-    -UMLRootPackage rootpkg
+class CoffeeLeaf {}
 }
-
-UMLModel -> UMLRootPackage
-UMLPackage *-> UMLPackage
-UMLPackage *--> UMLClass
+class AAA {}
 
 @enduml

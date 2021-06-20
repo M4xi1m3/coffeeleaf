@@ -45,11 +45,16 @@ public class UMLClass {
 		return name;
 	}
 
+	public String getFullName() {
+		String pname = parent.getFullName();
+		return (pname.length() == 0 ? "" : pname + ".") + this.getName();
+	}
+
 	public UMLPackage getParent() {
 		return parent;
 	}
 
 	public void debug(int depth) {
-		System.out.println(" ".repeat(depth * 4) + "[CLS] " + name);
+		System.out.println(" ".repeat(depth * 4) + "[CLS] " + this.getFullName());
 	}
 }

@@ -18,7 +18,9 @@
  */
 package io.github.m4x1m3.coffeeleaf.model;
 
+import java.util.ArrayDeque;
 import java.util.HashMap;
+import java.util.function.Consumer;
 
 /**
  * Represents a Package iin the UML
@@ -53,6 +55,34 @@ public class UMLPackage {
 		return name;
 	}
 
+	public String getFullName() {
+		ArrayDeque<String> names = new ArrayDeque<String>();
+
+		UMLPackage current = this;
+		while (!(current instanceof UMLRootPackage)) {
+			names.push(current.getName());
+			current = current.parent;
+		}
+
+		return String.join(".", names);
+	}
+
+	public void forEachPackage(Consumer<UMLPackage> c) {
+		subPackages.forEach((n, p) -> c.accept(p));
+	}
+
+	public void forEachClass(Consumer<UMLClass> c) {
+		subClasses.forEach((n, p) -> c.accept(p));
+	}
+
+	public boolean hasPackages() {
+		return !subPackages.isEmpty();
+	}
+
+	public boolean hasClasses() {
+		return !subClasses.isEmpty();
+	}
+
 	@Override
 	public int hashCode() {
 		int hash = 7;
@@ -65,7 +95,7 @@ public class UMLPackage {
 	}
 
 	public void debug(int depth) {
-		System.out.println(" ".repeat(depth * 4) + "[PKG] " + name);
+		System.out.println(" ".repeat(depth * 4) + "[PKG] " + this.getFullName());
 
 		subPackages.forEach((n, p) -> {
 			p.debug(depth + 1);
