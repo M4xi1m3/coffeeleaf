@@ -18,9 +18,7 @@
  */
 package io.github.m4x1m3.coffeeleaf;
 
-import java.util.HashMap;
-
-import io.github.m4x1m3.coffeeleaf.annotations.CLClass;
+import io.github.m4x1m3.coffeeleaf.annotations.GenUML;
 import io.github.m4x1m3.coffeeleaf.generator.PUMLGenerator;
 import io.github.m4x1m3.coffeeleaf.model.UMLModel;
 import io.github.m4x1m3.coffeeleaf.utils.ReflectUtil;
@@ -30,13 +28,12 @@ import io.github.m4x1m3.coffeeleaf.utils.ReflectUtil;
  * 
  * @author Maxime "M4x1m3" FRIESS
  */
-@CLClass
+@GenUML
 public class CoffeeLeaf {
+	@GenUML
 	public static void main(String[] args) {
 
 		UMLModel model = new UMLModel("default");
-		
-		HashMap<String, UMLModel> models = new HashMap<String, UMLModel>();
 
 		for (Class<? extends Object> c : ReflectUtil.getUMLClasses()) {
 			c.getModifiers();

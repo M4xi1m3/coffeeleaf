@@ -27,7 +27,7 @@ import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
 import org.reflections.scanners.TypeAnnotationsScanner;
 
-import io.github.m4x1m3.coffeeleaf.annotations.CLClass;
+import io.github.m4x1m3.coffeeleaf.annotations.GenUML;
 import io.github.m4x1m3.coffeeleaf.model.UMLAccessLevel;
 import io.github.m4x1m3.coffeeleaf.model.UMLClassType;
 
@@ -47,7 +47,7 @@ public class ReflectUtil {
 		HashSet<Class<?>> out = new HashSet<Class<?>>();
 
 		Reflections r = new Reflections("", new SubTypesScanner(false), new TypeAnnotationsScanner());
-		out.addAll(r.getTypesAnnotatedWith(CLClass.class));
+		out.addAll(r.getTypesAnnotatedWith(GenUML.class));
 
 		return out;
 	}

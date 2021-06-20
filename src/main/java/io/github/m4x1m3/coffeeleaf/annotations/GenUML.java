@@ -18,10 +18,20 @@
  */
 package io.github.m4x1m3.coffeeleaf.annotations;
 
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
 /**
  * @author Maxime "M4x1m3" FRIESS
+ *
  */
-@CLClass
-public @interface CLClass {
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target({ElementType.METHOD, ElementType.TYPE})
+public @interface GenUML {
 	public String modelName() default "default";
+
 }

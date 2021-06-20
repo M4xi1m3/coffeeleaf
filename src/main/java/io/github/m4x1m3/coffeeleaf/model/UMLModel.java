@@ -22,6 +22,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayDeque;
 
+import io.github.m4x1m3.coffeeleaf.annotations.GenUML;
+
 /**
  * Represents a UML Model
  * 
@@ -54,17 +56,24 @@ public class UMLModel {
 		UMLClass c = new UMLClass(clazz, current);
 
 		for (Method m : clazz.getMethods()) {
-			UMLMethod meth = new UMLMethod(m);
+			if (m.isAnnotationPresent(GenUML.class)) {
+				UMLMethod meth = new UMLMethod(m);
 
-			for (Parameter p : m.getParameters()) {
-				meth.addParam(new UMLParameter(p));
+				for (Parameter p : m.getParameters()) {
+					meth.addParam(new UMLParameter(p));
+				}
+
+				c.addMethod(meth);
 			}
-			
-			c.addMethod(meth);
+
 		}
-		
+
 		current.addClass(c);
 
+	}
+
+	public String getName() {
+		return name;
 	}
 
 	public UMLRootPackage getRootPackage() {

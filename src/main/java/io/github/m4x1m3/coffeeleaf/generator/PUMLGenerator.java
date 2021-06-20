@@ -102,15 +102,16 @@ public class PUMLGenerator {
 		ArrayList<String> params = new ArrayList<String>();
 		
 		for(UMLParameter par : met.getParams()) {
-			params.add(par.getName() + ":" + par.getType() + (par.isVariable() ? "..." : ""));
+			params.add(par.getName() + ":" + par.getType().getSimpleName() + (par.isVariable() ? "..." : ""));
 		}
 		
 		out.print(String.join(", ", params));
 		
 		out.print(")");
 		
-		if (!met.getReturnType().equals(Void.TYPE))
+		if (!met.getReturnType().equals(Void.TYPE)) {
 			out.print(": " + met.getReturnType().getSimpleName());
+		}
 		
 		if (met.isFinal())
 			out.print(" <<final>>");
