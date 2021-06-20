@@ -19,12 +19,15 @@
 package io.github.m4x1m3.coffeeleaf.generator;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
 
 import io.github.m4x1m3.coffeeleaf.model.UMLAccessLevel;
 import io.github.m4x1m3.coffeeleaf.model.UMLClass;
 import io.github.m4x1m3.coffeeleaf.model.UMLClassType;
+import io.github.m4x1m3.coffeeleaf.model.UMLMethod;
 import io.github.m4x1m3.coffeeleaf.model.UMLModel;
 import io.github.m4x1m3.coffeeleaf.model.UMLPackage;
+import io.github.m4x1m3.coffeeleaf.model.UMLParameter;
 import io.github.m4x1m3.coffeeleaf.model.UMLRootPackage;
 
 /**
@@ -86,6 +89,34 @@ public class PUMLGenerator {
 		}
 	}
 
+	private void generateMethod(UMLMethod met) {
+		out.print(this.accessLevelChar(met.getAccessLevel()));
+
+		if (met.isAbstract())
+			out.print("{abstract} ");
+		if (met.isStatic())
+			out.print("{static} ");
+		
+		out.print(met.getName() + "(");
+		
+		ArrayList<String> params = new ArrayList<String>();
+		
+		for(UMLParameter par : met.getParams()) {
+			params.add(par.getName() + ":" + par.getType() + (par.isVariable() ? "..." : ""));
+		}
+		
+		out.print(String.join(", ", params));
+		
+		out.print(")");
+		
+		if (!met.getReturnType().equals(Void.TYPE))
+			out.print(": " + met.getReturnType().getSimpleName());
+		
+		if (met.isFinal())
+			out.print(" <<final>>");
+		out.println();
+	}
+
 	private void generateClasses(UMLClass cls) {
 
 		if (accessLevelOnClass) {
@@ -99,6 +130,10 @@ public class PUMLGenerator {
 		}
 		out.println(" {");
 
+		for(UMLMethod met : cls.getMethods()) {
+			generateMethod(met);
+		}
+		
 		out.println("}");
 	}
 }

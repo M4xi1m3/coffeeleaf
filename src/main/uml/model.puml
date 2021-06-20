@@ -25,10 +25,25 @@ hide empty members
 
 package io.github.m4x1m3.coffeeleaf {
 package io.github.m4x1m3.coffeeleaf.annotations {
-+annotation CLClass <<annotation>> {
+annotation io.github.m4x1m3.coffeeleaf.annotations.CLClass {
++{abstract} modelName(): String
++{abstract} equals(arg0:class java.lang.Object): boolean
++{abstract} toString(): String
++{abstract} hashCode(): int
++{abstract} annotationType(): Class
 }
 }
-+class CoffeeLeaf {
+class io.github.m4x1m3.coffeeleaf.CoffeeLeaf {
++{static} main(arg0:class [Ljava.lang.String;): void
++wait(arg0:long, arg1:int): void <<final>>
++wait(): void <<final>>
++wait(arg0:long): void <<final>>
++equals(arg0:class java.lang.Object): boolean
++toString(): String
++hashCode(): int
++getClass(): Class <<final>>
++notify(): void <<final>>
++notifyAll(): void <<final>>
 }
 }
 

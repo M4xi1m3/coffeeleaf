@@ -18,9 +18,9 @@
  */
 package io.github.m4x1m3.coffeeleaf.model;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.ArrayDeque;
-
-import io.github.m4x1m3.coffeeleaf.utils.ReflectUtil;
 
 /**
  * Represents a UML Model
@@ -51,7 +51,20 @@ public class UMLModel {
 			current = current.findOrCreatePackage(names.pop());
 		}
 
-		new UMLClass(names.pop(), current, ReflectUtil.getAccessLevel(clazz), ReflectUtil.getClassType(clazz));
+		UMLClass c = new UMLClass(clazz, current);
+
+		for (Method m : clazz.getMethods()) {
+			UMLMethod meth = new UMLMethod(m);
+
+			for (Parameter p : m.getParameters()) {
+				meth.addParam(new UMLParameter(p));
+			}
+			
+			c.addMethod(meth);
+		}
+		
+		current.addClass(c);
+
 	}
 
 	public UMLRootPackage getRootPackage() {

@@ -18,6 +18,7 @@
  */
 package io.github.m4x1m3.coffeeleaf.utils;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
@@ -52,6 +53,17 @@ public class ReflectUtil {
 	}
 
 	public static UMLAccessLevel getAccessLevel(Class<? extends Object> c) {
+		if ((c.getModifiers() & Modifier.PRIVATE) != 0)
+			return UMLAccessLevel.PRIVATE;
+		else if ((c.getModifiers() & Modifier.PUBLIC) != 0)
+			return UMLAccessLevel.PUBLIC;
+		else if ((c.getModifiers() & Modifier.PROTECTED) != 0)
+			return UMLAccessLevel.PROTECTED;
+		else
+			return UMLAccessLevel.PACKAGE;
+	}
+
+	public static UMLAccessLevel getAccessLevel(Method c) {
 		if ((c.getModifiers() & Modifier.PRIVATE) != 0)
 			return UMLAccessLevel.PRIVATE;
 		else if ((c.getModifiers() & Modifier.PUBLIC) != 0)

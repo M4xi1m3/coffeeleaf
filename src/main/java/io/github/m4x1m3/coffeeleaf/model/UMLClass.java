@@ -18,6 +18,12 @@
  */
 package io.github.m4x1m3.coffeeleaf.model;
 
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.List;
+
+import io.github.m4x1m3.coffeeleaf.utils.ReflectUtil;
+
 /**
  * Represents a class in the UML
  * 
@@ -28,13 +34,23 @@ public class UMLClass {
 	private UMLPackage parent;
 	private UMLAccessLevel accessLevel;
 	private UMLClassType classType;
+	private boolean isFinal;
 
-	public UMLClass(String name, UMLPackage parent, UMLAccessLevel accessLevel, UMLClassType classType) {
+	private List<UMLMethod> methods;
+
+	public UMLClass(Class<?> c, UMLPackage parent) {
+		this(c.getName(), parent, ReflectUtil.getAccessLevel(c), ReflectUtil.getClassType(c),
+				(c.getModifiers() & Modifier.FINAL) != 0);
+	}
+
+	public UMLClass(String name, UMLPackage parent, UMLAccessLevel accessLevel, UMLClassType classType,
+			boolean isFinal) {
 		this.name = name;
 		this.parent = parent;
 		this.accessLevel = accessLevel;
 		this.classType = classType;
-		parent.addClass(this);
+		this.isFinal = isFinal;
+		this.methods = new ArrayList<UMLMethod>();
 	}
 
 	@Override
@@ -43,6 +59,10 @@ public class UMLClass {
 		hash = 31 * hash + name.hashCode();
 		hash = 31 * hash + parent.hashCode();
 		return hash;
+	}
+
+	public boolean isFinal() {
+		return isFinal;
 	}
 
 	public String getName() {
@@ -68,5 +88,16 @@ public class UMLClass {
 
 	public UMLClassType getClassType() {
 		return classType;
+	}
+
+	public List<UMLMethod> getMethods() {
+		return new ArrayList<UMLMethod>(methods);
+	}
+
+	/**
+	 * @param meth
+	 */
+	public void addMethod(UMLMethod meth) {
+		this.methods.add(meth);
 	}
 }
