@@ -24,20 +24,14 @@ skinparam style strictuml
 hide empty members
 
 package io.github.m4x1m3.coffeeleaf {
-package io.github.m4x1m3.coffeeleaf.utils {
-class ReflectUtil {}
+package io.github.m4x1m3.coffeeleaf.annotations {
++annotation CLClass <<annotation>> {
 }
-package io.github.m4x1m3.coffeeleaf.generator {
-class PUMLGenerator {}
 }
-package io.github.m4x1m3.coffeeleaf.model {
-class UMLModel {}
-class UMLClass {}
-class UMLRootPackage {}
-class UMLPackage {}
++class CoffeeLeaf {
 }
-class CoffeeLeaf {}
 }
-class AAA {}
+
+
 
 @enduml

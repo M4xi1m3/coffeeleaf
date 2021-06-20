@@ -20,7 +20,9 @@ package io.github.m4x1m3.coffeeleaf.generator;
 
 import java.io.PrintStream;
 
+import io.github.m4x1m3.coffeeleaf.model.UMLAccessLevel;
 import io.github.m4x1m3.coffeeleaf.model.UMLClass;
+import io.github.m4x1m3.coffeeleaf.model.UMLClassType;
 import io.github.m4x1m3.coffeeleaf.model.UMLModel;
 import io.github.m4x1m3.coffeeleaf.model.UMLPackage;
 import io.github.m4x1m3.coffeeleaf.model.UMLRootPackage;
@@ -30,7 +32,9 @@ import io.github.m4x1m3.coffeeleaf.model.UMLRootPackage;
  *
  */
 public class PUMLGenerator {
-	PrintStream out;
+	private PrintStream out;
+	private boolean accessLevelOnClass = false;
+	private boolean repeatType = false;
 
 	public PUMLGenerator(PrintStream out) {
 		this.out = out;
@@ -54,7 +58,47 @@ public class PUMLGenerator {
 		}
 	}
 
+	private String typeName(UMLClassType t) {
+		switch (t) {
+		case ABSTRACT:
+			return "abstract";
+		case ANNOTATION:
+			return "annotation";
+		case ENUM:
+			return "enum";
+		case INTERFACE:
+			return "interface";
+		default:
+			return "class";
+		}
+	}
+
+	private String accessLevelChar(UMLAccessLevel l) {
+		switch (l) {
+		case PRIVATE:
+			return "-";
+		case PACKAGE:
+			return "~";
+		case PROTECTED:
+			return "#";
+		default:
+			return "+";
+		}
+	}
+
 	private void generateClasses(UMLClass cls) {
-		out.println("class " + cls.getName() + " {}");
+
+		if (accessLevelOnClass) {
+			out.print(accessLevelChar(cls.getAccessLevel()));
+		}
+
+		out.print(typeName(cls.getClassType()) + " " + cls.getName());
+
+		if (cls.getClassType() != UMLClassType.CLASS && repeatType) {
+			out.print(" <<" + typeName(cls.getClassType()) + ">>");
+		}
+		out.println(" {");
+
+		out.println("}");
 	}
 }

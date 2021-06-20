@@ -20,6 +20,7 @@ package io.github.m4x1m3.coffeeleaf;
 
 import java.util.HashMap;
 
+import io.github.m4x1m3.coffeeleaf.annotations.CLClass;
 import io.github.m4x1m3.coffeeleaf.generator.PUMLGenerator;
 import io.github.m4x1m3.coffeeleaf.model.UMLModel;
 import io.github.m4x1m3.coffeeleaf.utils.ReflectUtil;
@@ -29,6 +30,7 @@ import io.github.m4x1m3.coffeeleaf.utils.ReflectUtil;
  * 
  * @author Maxime "M4x1m3" FRIESS
  */
+@CLClass
 public class CoffeeLeaf {
 	public static void main(String[] args) {
 
@@ -36,10 +38,11 @@ public class CoffeeLeaf {
 		
 		HashMap<String, UMLModel> models = new HashMap<String, UMLModel>();
 
-		for (Class<? extends Object> c : ReflectUtil.getClassesInPackages(new String[] {""})) {
+		for (Class<? extends Object> c : ReflectUtil.getUMLClasses()) {
+			c.getModifiers();
 			model.addClass(c);
 		}
-		
+
 		PUMLGenerator out = new PUMLGenerator(System.out);
 		out.generate(model);
 	}

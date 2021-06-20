@@ -18,11 +18,17 @@
  */
 package io.github.m4x1m3.coffeeleaf.utils;
 
+import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
+import org.reflections.scanners.TypeAnnotationsScanner;
+
+import io.github.m4x1m3.coffeeleaf.annotations.CLClass;
+import io.github.m4x1m3.coffeeleaf.model.UMLAccessLevel;
+import io.github.m4x1m3.coffeeleaf.model.UMLClassType;
 
 /**
  * Utility class for reflection
@@ -31,20 +37,42 @@ import org.reflections.scanners.SubTypesScanner;
  */
 public class ReflectUtil {
 	/**
-	 * Get all classes in bases packages
+	 * Get all classes annotated for UML generation
 	 * 
 	 * @param bases List of packages names
 	 * @return Set of classes
 	 */
-	public static Set<Class<?>> getClassesInPackages(String[] bases) {
+	public static Set<Class<?>> getUMLClasses() {
 		HashSet<Class<?>> out = new HashSet<Class<?>>();
 
-		for (String base : bases) {
-			Reflections r = new Reflections(base, new SubTypesScanner(false));
-			out.addAll(r.getSubTypesOf(Object.class));
-
-		}
+		Reflections r = new Reflections("", new SubTypesScanner(false), new TypeAnnotationsScanner());
+		out.addAll(r.getTypesAnnotatedWith(CLClass.class));
 
 		return out;
 	}
+
+	public static UMLAccessLevel getAccessLevel(Class<? extends Object> c) {
+		if ((c.getModifiers() & Modifier.PRIVATE) != 0)
+			return UMLAccessLevel.PRIVATE;
+		else if ((c.getModifiers() & Modifier.PUBLIC) != 0)
+			return UMLAccessLevel.PUBLIC;
+		else if ((c.getModifiers() & Modifier.PROTECTED) != 0)
+			return UMLAccessLevel.PROTECTED;
+		else
+			return UMLAccessLevel.PACKAGE;
+	}
+	
+	public static UMLClassType getClassType(Class<? extends Object> c) {
+		if (c.isEnum())
+			return UMLClassType.ENUM;
+		else if (c.isAnnotation())
+			return UMLClassType.ANNOTATION;
+		else if ((c.getModifiers() & Modifier.INTERFACE) != 0)
+			return UMLClassType.INTERFACE;
+		else if ((c.getModifiers() & Modifier.ABSTRACT) != 0)
+			return UMLClassType.ABSTRACT;
+		else
+			return UMLClassType.CLASS;
+	}
+
 }

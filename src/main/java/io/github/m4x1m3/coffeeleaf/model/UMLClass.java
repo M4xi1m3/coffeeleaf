@@ -26,10 +26,14 @@ package io.github.m4x1m3.coffeeleaf.model;
 public class UMLClass {
 	private String name;
 	private UMLPackage parent;
+	private UMLAccessLevel accessLevel;
+	private UMLClassType classType;
 
-	public UMLClass(String name, UMLPackage parent) {
+	public UMLClass(String name, UMLPackage parent, UMLAccessLevel accessLevel, UMLClassType classType) {
 		this.name = name;
 		this.parent = parent;
+		this.accessLevel = accessLevel;
+		this.classType = classType;
 		parent.addClass(this);
 	}
 
@@ -56,5 +60,13 @@ public class UMLClass {
 
 	public void debug(int depth) {
 		System.out.println(" ".repeat(depth * 4) + "[CLS] " + this.getFullName());
+	}
+
+	public UMLAccessLevel getAccessLevel() {
+		return accessLevel;
+	}
+
+	public UMLClassType getClassType() {
+		return classType;
 	}
 }

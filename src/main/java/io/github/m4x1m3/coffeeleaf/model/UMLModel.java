@@ -20,6 +20,8 @@ package io.github.m4x1m3.coffeeleaf.model;
 
 import java.util.ArrayDeque;
 
+import io.github.m4x1m3.coffeeleaf.utils.ReflectUtil;
+
 /**
  * Represents a UML Model
  * 
@@ -49,7 +51,7 @@ public class UMLModel {
 			current = current.findOrCreatePackage(names.pop());
 		}
 
-		new UMLClass(names.pop(), current);
+		new UMLClass(names.pop(), current, ReflectUtil.getAccessLevel(clazz), ReflectUtil.getClassType(clazz));
 	}
 
 	public UMLRootPackage getRootPackage() {
