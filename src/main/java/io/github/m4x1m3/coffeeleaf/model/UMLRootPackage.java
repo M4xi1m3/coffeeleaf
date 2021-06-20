@@ -29,4 +29,14 @@ public class UMLRootPackage extends UMLPackage {
 	public UMLRootPackage() {
 		super("", null);
 	}
+
+	public void debug(int depth) {
+		subPackages.forEach((n, p) -> {
+			p.debug(depth + 1);
+		});
+
+		subClasses.forEach((n, c) -> {
+			c.debug(depth + 1);
+		});
+	}
 }

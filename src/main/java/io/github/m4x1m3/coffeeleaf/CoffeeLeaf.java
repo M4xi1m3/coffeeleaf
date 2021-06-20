@@ -18,8 +18,11 @@
  */
 package io.github.m4x1m3.coffeeleaf;
 
+import java.util.HashMap;
+
+import io.github.m4x1m3.coffeeleaf.annotations.GenUML;
 import io.github.m4x1m3.coffeeleaf.model.UMLModel;
-import io.github.m4x1m3.coffeeleaf.utils.RelfectUtil;
+import io.github.m4x1m3.coffeeleaf.utils.ReflectUtil;
 
 /**
  * Main class
@@ -28,12 +31,24 @@ import io.github.m4x1m3.coffeeleaf.utils.RelfectUtil;
  */
 public class CoffeeLeaf {
 	public static void main(String[] args) {
-		UMLModel model = new UMLModel("test");
+		UMLConfig cfg = ReflectUtil.getConfig();
+		System.out.println(cfg.test());
+		
+		HashMap<String, UMLModel> models = new HashMap<String, UMLModel>();
+		
 
-		for (Class<? extends Object> c : RelfectUtil.getGenUMLClasses()) {
-			model.addClass(c);
+		for (Class<? extends Object> c : ReflectUtil.getGenUMLClasses()) {
+			for(String model : c.getAnnotation(GenUML.class).models()) {
+				if (!models.containsKey(model)) {
+					models.put(model, new UMLModel(model));
+				}
+				models.get(model).addClass(c);
+			}
 		}
 
-		model.debug();
+		models.forEach((n, m) -> {
+			System.out.println(" --- ");
+			m.debug();
+		});
 	}
 }

@@ -50,6 +50,6 @@ public class UMLClass {
 	}
 
 	public void debug(int depth) {
-		System.out.println(" ".repeat(depth * 4) + name);
+		System.out.println(" ".repeat(depth * 4) + "[CLS] " + name);
 	}
 }

@@ -53,7 +53,7 @@ public class UMLModel {
 	}
 
 	public void debug() {
-		System.out.println(name);
+		System.out.println("[MDL] " + name);
 		rootpkg.debug(0);
 	}
 }

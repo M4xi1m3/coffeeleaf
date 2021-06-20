@@ -29,8 +29,8 @@ public class UMLPackage {
 	private String name;
 	private UMLPackage parent;
 
-	private HashMap<String, UMLPackage> subPackages;
-	private HashMap<String, UMLClass> subClasses;
+	protected HashMap<String, UMLPackage> subPackages;
+	protected HashMap<String, UMLClass> subClasses;
 
 	public UMLPackage(String name, UMLPackage parent) {
 		this.name = name;
@@ -65,7 +65,7 @@ public class UMLPackage {
 	}
 
 	public void debug(int depth) {
-		System.out.println(" ".repeat(depth * 4) + name);
+		System.out.println(" ".repeat(depth * 4) + "[PKG] " + name);
 
 		subPackages.forEach((n, p) -> {
 			p.debug(depth + 1);
