@@ -28,9 +28,8 @@ import io.github.m4x1m3.coffeeleaf.utils.ReflectUtil;
  * 
  * @author Maxime "M4x1m3" FRIESS
  */
-@GenUML
+@GenUML(methods = true)
 public class CoffeeLeaf {
-	@GenUML
 	public static void main(String[] args) {
 
 		UMLModel model = new UMLModel("default");

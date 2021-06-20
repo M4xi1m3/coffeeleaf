@@ -24,29 +24,28 @@ skinparam style strictuml
 hide empty members
 
 package io.github.m4x1m3.coffeeleaf {
-package io.github.m4x1m3.coffeeleaf.annotations {
-annotation io.github.m4x1m3.coffeeleaf.annotations.CLClass {
-+{abstract} modelName(): String
-+{abstract} equals(arg0:class java.lang.Object): boolean
-+{abstract} toString(): String
-+{abstract} hashCode(): int
-+{abstract} annotationType(): Class
+package io.github.m4x1m3.coffeeleaf.generator {
+class io.github.m4x1m3.coffeeleaf.generator.PUMLGenerator {
+-typeName(t:UMLClassType): String
+-generateMethod(met:UMLMethod)
++generate(model:UMLModel)
+-generatePackage(pkg:UMLPackage)
+-accessLevelChar(l:UMLAccessLevel): String
+-generateClasses(cls:UMLClass)
+}
+}
+package io.github.m4x1m3.coffeeleaf.model {
+class io.github.m4x1m3.coffeeleaf.model.UMLModel {
++getName(): String
++addClass(clazz:Class)
++debug()
++getRootPackage(): UMLRootPackage
 }
 }
 class io.github.m4x1m3.coffeeleaf.CoffeeLeaf {
-+{static} main(arg0:class [Ljava.lang.String;): void
-+wait(arg0:long, arg1:int): void <<final>>
-+wait(): void <<final>>
-+wait(arg0:long): void <<final>>
-+equals(arg0:class java.lang.Object): boolean
-+toString(): String
-+hashCode(): int
-+getClass(): Class <<final>>
-+notify(): void <<final>>
-+notifyAll(): void <<final>>
++{static} main(args:String[])
 }
 }
-
 
 
 @enduml

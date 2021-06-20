@@ -33,5 +33,5 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD, ElementType.TYPE})
 public @interface GenUML {
 	public String modelName() default "default";
-
+	public boolean methods() default false;
 }

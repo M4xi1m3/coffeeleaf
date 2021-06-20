@@ -21,6 +21,7 @@ package io.github.m4x1m3.coffeeleaf.generator;
 import java.io.PrintStream;
 import java.util.ArrayList;
 
+import io.github.m4x1m3.coffeeleaf.annotations.GenUML;
 import io.github.m4x1m3.coffeeleaf.model.UMLAccessLevel;
 import io.github.m4x1m3.coffeeleaf.model.UMLClass;
 import io.github.m4x1m3.coffeeleaf.model.UMLClassType;
@@ -34,6 +35,7 @@ import io.github.m4x1m3.coffeeleaf.model.UMLRootPackage;
  * @author Maxime "M4x1m3" FRIESS
  *
  */
+@GenUML(methods = true)
 public class PUMLGenerator {
 	private PrintStream out;
 	private boolean accessLevelOnClass = false;

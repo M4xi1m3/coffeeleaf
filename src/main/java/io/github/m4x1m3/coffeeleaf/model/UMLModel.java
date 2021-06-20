@@ -19,6 +19,7 @@
 package io.github.m4x1m3.coffeeleaf.model;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.ArrayDeque;
 
@@ -29,6 +30,7 @@ import io.github.m4x1m3.coffeeleaf.annotations.GenUML;
  * 
  * @author Maxime "M4x1m3" FRIESS
  */
+@GenUML(methods = true)
 public class UMLModel {
 	private String name;
 
@@ -55,18 +57,37 @@ public class UMLModel {
 
 		UMLClass c = new UMLClass(clazz, current);
 
-		for (Method m : clazz.getMethods()) {
-			if (m.isAnnotationPresent(GenUML.class)) {
-				UMLMethod meth = new UMLMethod(m);
+		if (clazz.getAnnotation(GenUML.class).methods()) {
+			
+			for (Method m : clazz.getDeclaredMethods()) {
+				// Dirty hack to avoir lambdas and other shit
+				if (m.getDeclaringClass().equals(clazz) && !m.getName().contains("$")) {
+					UMLMethod meth = new UMLMethod(m);
 
-				for (Parameter p : m.getParameters()) {
-					meth.addParam(new UMLParameter(p));
+					for (Parameter p : m.getParameters()) {
+						meth.addParam(new UMLParameter(p));
+					}
+
+					c.addMethod(meth);
 				}
 
-				c.addMethod(meth);
 			}
+		} else {
+			for (Method m : clazz.getDeclaredMethods()) {
+				if (m.isAnnotationPresent(GenUML.class)) {
+					UMLMethod meth = new UMLMethod(m);
 
+					for (Parameter p : m.getParameters()) {
+						meth.addParam(new UMLParameter(p));
+					}
+
+					c.addMethod(meth);
+				}
+
+			}
 		}
+		
+
 
 		current.addClass(c);
 
