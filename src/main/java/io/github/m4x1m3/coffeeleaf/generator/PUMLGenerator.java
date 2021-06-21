@@ -143,6 +143,7 @@ public class PUMLGenerator {
 			out.print("{static} ");
 		
 		out.print(field.getName());
+		out.print(": " + field.getType().getSimpleName());
 		
 		if (field.isFinal())
 			out.print(" <<final>>");

@@ -61,11 +61,12 @@ public class UMLField {
 	private UMLClass clazz;
 	
 	public UMLField(Field f, UMLClass clazz) {
-		this(f.getName(), ReflectUtil.getAccessLevel(f), (f.getModifiers() & Modifier.FINAL) != 0, (f.getModifiers() & Modifier.STATIC) != 0, clazz);
+		this(f.getName(), f.getType(), ReflectUtil.getAccessLevel(f), (f.getModifiers() & Modifier.FINAL) != 0, (f.getModifiers() & Modifier.STATIC) != 0, clazz);
 	}
 	
-	public UMLField(String name, UMLAccessLevel accessLevel, boolean isFinal, boolean isStatic, UMLClass clazz) {
+	public UMLField(String name, Class<?> type, UMLAccessLevel accessLevel, boolean isFinal, boolean isStatic, UMLClass clazz) {
 		this.name = name;
+		this.type = type;
 		this.accessLevel = accessLevel;
 		this.isFinal = isFinal;
 		this.isStatic = isStatic;
