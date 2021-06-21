@@ -19,6 +19,7 @@
 package io.github.m4x1m3.coffeeleaf.utils;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
@@ -52,39 +53,46 @@ public class ReflectUtil {
 			if (t.getPackage().isAnnotationPresent(GenUML.class)) {
 				if (t.getPackage().getAnnotation(GenUML.class).classes()) {
 					Reflections r2 = new Reflections(t.getPackage().getName(), new SubTypesScanner(false));
-					
-					r2.getSubTypesOf(Object.class).stream().filter(c -> !c.getSimpleName().equals("package-info")).forEach(c -> {
-						out.put(c, t.getPackage().getAnnotation(GenUML.class));
-					});
+
+					r2.getSubTypesOf(Object.class).stream().filter(c -> !c.getSimpleName().equals("package-info"))
+							.forEach(c -> {
+								out.put(c, t.getPackage().getAnnotation(GenUML.class));
+							});
 				}
 			}
 		});
-		
-		// out.addAll(r.getTypesAnnotatedWith(GenUML.class).stream().filter(c -> !c.getSimpleName().equals("package-info")).toList());
+
+		// out.addAll(r.getTypesAnnotatedWith(GenUML.class).stream().filter(c ->
+		// !c.getSimpleName().equals("package-info")).toList());
 
 		return out;
 	}
 
-	public static UMLAccessLevel getAccessLevel(Class<? extends Object> c) {
-		if ((c.getModifiers() & Modifier.PRIVATE) != 0)
+	public static UMLAccessLevel getAccessLevel(int modifier) {
+		if ((modifier & Modifier.PRIVATE) != 0)
 			return UMLAccessLevel.PRIVATE;
-		else if ((c.getModifiers() & Modifier.PUBLIC) != 0)
+		else if ((modifier & Modifier.PUBLIC) != 0)
 			return UMLAccessLevel.PUBLIC;
-		else if ((c.getModifiers() & Modifier.PROTECTED) != 0)
+		else if ((modifier & Modifier.PROTECTED) != 0)
 			return UMLAccessLevel.PROTECTED;
 		else
 			return UMLAccessLevel.PACKAGE;
 	}
 
+	public static UMLAccessLevel getAccessLevel(Class<? extends Object> c) {
+		return getAccessLevel(c.getModifiers());
+	}
+
 	public static UMLAccessLevel getAccessLevel(Method c) {
-		if ((c.getModifiers() & Modifier.PRIVATE) != 0)
-			return UMLAccessLevel.PRIVATE;
-		else if ((c.getModifiers() & Modifier.PUBLIC) != 0)
-			return UMLAccessLevel.PUBLIC;
-		else if ((c.getModifiers() & Modifier.PROTECTED) != 0)
-			return UMLAccessLevel.PROTECTED;
-		else
-			return UMLAccessLevel.PACKAGE;
+		return getAccessLevel(c.getModifiers());
+	}
+
+	public static UMLAccessLevel getAccessLevel(Constructor<?> c) {
+		return getAccessLevel(c.getModifiers());
+	}
+
+	public static UMLAccessLevel getAccessLevel(Field c) {
+		return getAccessLevel(c.getModifiers());
 	}
 
 	public static UMLClassType getClassType(Class<? extends Object> c) {
@@ -98,17 +106,6 @@ public class ReflectUtil {
 			return UMLClassType.ABSTRACT;
 		else
 			return UMLClassType.CLASS;
-	}
-
-	public static UMLAccessLevel getAccessLevel(Constructor<?> c) {
-		if ((c.getModifiers() & Modifier.PRIVATE) != 0)
-			return UMLAccessLevel.PRIVATE;
-		else if ((c.getModifiers() & Modifier.PUBLIC) != 0)
-			return UMLAccessLevel.PUBLIC;
-		else if ((c.getModifiers() & Modifier.PROTECTED) != 0)
-			return UMLAccessLevel.PROTECTED;
-		else
-			return UMLAccessLevel.PACKAGE;
 	}
 
 }

@@ -25,6 +25,7 @@ import io.github.m4x1m3.coffeeleaf.model.UMLAccessLevel;
 import io.github.m4x1m3.coffeeleaf.model.UMLClass;
 import io.github.m4x1m3.coffeeleaf.model.UMLClassType;
 import io.github.m4x1m3.coffeeleaf.model.UMLConstructor;
+import io.github.m4x1m3.coffeeleaf.model.UMLField;
 import io.github.m4x1m3.coffeeleaf.model.UMLMethod;
 import io.github.m4x1m3.coffeeleaf.model.UMLModel;
 import io.github.m4x1m3.coffeeleaf.model.UMLPackage;
@@ -109,7 +110,7 @@ public class PUMLGenerator {
 	private void generateMethod(UMLMethod met) {
 		out.print(this.accessLevelChar(met.getAccessLevel()));
 
-		if (met.isAbstract())
+		if (met.isAbstract() && met.getClazz().getClassType() != UMLClassType.INTERFACE)
 			out.print("{abstract} ");
 		if (met.isStatic())
 			out.print("{static} ");
@@ -134,6 +135,19 @@ public class PUMLGenerator {
 			out.print(" <<final>>");
 		out.println();
 	}
+	
+	private void generateFields(UMLField field) {
+		out.print(this.accessLevelChar(field.getAccessLevel()));
+
+		if (field.isStatic())
+			out.print("{static} ");
+		
+		out.print(field.getName());
+		
+		if (field.isFinal())
+			out.print(" <<final>>");
+		out.println();
+	}
 
 	private void generateClasses(UMLClass cls) {
 
@@ -148,14 +162,22 @@ public class PUMLGenerator {
 		}
 		out.println(" {");
 
+		out.println("' Constructors");
 		for(UMLConstructor cons : cls.getConstructors()) {
 			generateConstructor(cons);
 		}
 
+		out.println("' Fields");
+		for(UMLField field : cls.getFields()) {
+			generateFields(field);
+		}
+
+		out.println("' Methods");
 		for(UMLMethod met : cls.getMethods()) {
 			generateMethod(met);
 		}
 		
 		out.println("}");
+		out.println();
 	}
 }

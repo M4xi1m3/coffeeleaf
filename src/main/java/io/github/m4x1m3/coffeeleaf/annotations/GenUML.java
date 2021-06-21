@@ -36,4 +36,5 @@ public @interface GenUML {
 	public boolean methods() default false;
 	public boolean constructors() default false;
 	public boolean classes() default false;
+	public boolean fields() default false;
 }

@@ -19,6 +19,7 @@
 package io.github.m4x1m3.coffeeleaf.model;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayDeque;
 
@@ -70,6 +71,15 @@ public class UMLModel {
 					&& gu.constructors()) || t.isAnnotationPresent(GenUML.class)) {
 				UMLConstructor cons = new UMLConstructor(t, c);
 				c.addConstructor(cons);
+			}
+		}
+		
+		for(Field f : clazz.getDeclaredFields()) {
+			// Dirty hack to avoid lambdas and other shit
+			if ((f.getDeclaringClass().equals(clazz) && !f.getName().contains("$")
+					&& gu.fields()) || f.isAnnotationPresent(GenUML.class)) {
+				UMLField field = new UMLField(f, c);
+				c.addField(field);
 			}
 		}
 

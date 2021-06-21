@@ -38,6 +38,7 @@ public class UMLClass {
 
 	private List<UMLMethod> methods;
 	private List<UMLConstructor> constructors;
+	private List<UMLField> fields;
 
 	public UMLClass(Class<?> c, UMLPackage parent) {
 		this(c.getSimpleName(), parent, ReflectUtil.getAccessLevel(c), ReflectUtil.getClassType(c),
@@ -53,6 +54,7 @@ public class UMLClass {
 		this.isFinal = isFinal;
 		this.methods = new ArrayList<UMLMethod>();
 		this.constructors = new ArrayList<UMLConstructor>();
+		this.fields = new ArrayList<UMLField>();
 	}
 
 	@Override
@@ -92,6 +94,10 @@ public class UMLClass {
 		return classType;
 	}
 
+	public List<UMLField> getFields() {
+		return new ArrayList<UMLField>(fields);
+	}
+
 	public List<UMLMethod> getMethods() {
 		return new ArrayList<UMLMethod>(methods);
 	}
@@ -106,5 +112,9 @@ public class UMLClass {
 
 	public void addMethod(UMLMethod meth) {
 		this.methods.add(meth);
+	}
+
+	public void addField(UMLField field) {
+		this.fields.add(field);
 	}
 }
