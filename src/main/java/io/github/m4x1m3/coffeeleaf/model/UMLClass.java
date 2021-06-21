@@ -37,9 +37,10 @@ public class UMLClass {
 	private boolean isFinal;
 
 	private List<UMLMethod> methods;
+	private List<UMLConstructor> constructors;
 
 	public UMLClass(Class<?> c, UMLPackage parent) {
-		this(c.getName(), parent, ReflectUtil.getAccessLevel(c), ReflectUtil.getClassType(c),
+		this(c.getSimpleName(), parent, ReflectUtil.getAccessLevel(c), ReflectUtil.getClassType(c),
 				(c.getModifiers() & Modifier.FINAL) != 0);
 	}
 
@@ -51,6 +52,7 @@ public class UMLClass {
 		this.classType = classType;
 		this.isFinal = isFinal;
 		this.methods = new ArrayList<UMLMethod>();
+		this.constructors = new ArrayList<UMLConstructor>();
 	}
 
 	@Override
@@ -94,9 +96,14 @@ public class UMLClass {
 		return new ArrayList<UMLMethod>(methods);
 	}
 
-	/**
-	 * @param meth
-	 */
+	public List<UMLConstructor> getConstructors() {
+		return new ArrayList<UMLConstructor>(constructors);
+	}
+
+	public void addConstructor(UMLConstructor c) {
+		this.constructors.add(c);
+	}
+
 	public void addMethod(UMLMethod meth) {
 		this.methods.add(meth);
 	}

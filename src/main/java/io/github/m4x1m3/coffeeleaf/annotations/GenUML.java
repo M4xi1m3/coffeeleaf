@@ -30,8 +30,10 @@ import java.lang.annotation.Target;
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD, ElementType.TYPE})
+@Target({ElementType.METHOD, ElementType.TYPE, ElementType.PACKAGE, ElementType.CONSTRUCTOR})
 public @interface GenUML {
 	public String modelName() default "default";
 	public boolean methods() default false;
+	public boolean constructors() default false;
+	public boolean classes() default false;
 }

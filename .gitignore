@@ -16,4 +16,5 @@ src/main/uml/**/*.png
 
 # Program's logs
 log_*.csv
-
+src/main/java/fr/**
+src/main/uml/**

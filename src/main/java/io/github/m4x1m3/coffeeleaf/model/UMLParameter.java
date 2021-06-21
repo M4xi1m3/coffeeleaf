@@ -40,14 +40,36 @@ public class UMLParameter {
 	private Class<?> type;
 	private String name;
 	private boolean variable;
+	private UMLMethod method;
+	private UMLConstructor constructor;
 
-	public UMLParameter(Parameter p) {
-		this(p.getType(), p.getName(), p.isVarArgs());
+	public UMLParameter(Parameter p, UMLMethod m) {
+		this(p.getType(), p.getName(), p.isVarArgs(), m);
 	}
 	
-	public UMLParameter(Class<?> type, String name, boolean variable) {
+	public UMLParameter(Class<?> type, String name, boolean variable, UMLMethod method) {
 		this.type = type;
 		this.name = name;
 		this.variable = variable;
+		this.method = method;
+	}
+	
+	public UMLParameter(Class<?> type, String name, boolean variable, UMLConstructor constructor) {
+		this.type = type;
+		this.name = name;
+		this.variable = variable;
+		this.constructor = constructor;
+	}
+	
+	public UMLParameter(Parameter p, UMLConstructor c) {
+		this(p.getType(), p.getName(), p.isVarArgs(), c);
+	}
+
+	public UMLMethod getMethod() {
+		return method;
+	}
+	
+	public UMLConstructor getConstructor() {
+		return constructor;
 	}
 }

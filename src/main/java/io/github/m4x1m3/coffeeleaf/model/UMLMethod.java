@@ -20,6 +20,7 @@ package io.github.m4x1m3.coffeeleaf.model;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,14 +67,19 @@ public class UMLMethod {
 	private boolean isAbstract;
 	private boolean isStatic;
 	private boolean isFinal;
+	private UMLClass clazz;
 
-	public UMLMethod(Method m) {
+	public UMLMethod(Method m, UMLClass clazz) {
 		this(m.getName(), m.getReturnType(), ReflectUtil.getAccessLevel(m), (m.getModifiers() & Modifier.ABSTRACT) != 0,
-				(m.getModifiers() & Modifier.STATIC) != 0, (m.getModifiers() & Modifier.FINAL) != 0);
+				(m.getModifiers() & Modifier.STATIC) != 0, (m.getModifiers() & Modifier.FINAL) != 0, clazz);
+
+		for (Parameter p : m.getParameters()) {
+			this.addParam(new UMLParameter(p, this));
+		}
 	}
 
 	public UMLMethod(String name, Class<?> returnType, UMLAccessLevel accessLevel, boolean isAbstract, boolean isStatic,
-			boolean isFinal) {
+			boolean isFinal, UMLClass clazz) {
 		this.name = name;
 		this.returnType = returnType;
 		this.params = new ArrayList<UMLParameter>();
@@ -81,6 +87,11 @@ public class UMLMethod {
 		this.isAbstract = isAbstract;
 		this.isStatic = isStatic;
 		this.isFinal = isFinal;
+		this.clazz = clazz;
+	}
+
+	public UMLClass getClazz() {
+		return clazz;
 	}
 
 	public void addParam(UMLParameter param) {

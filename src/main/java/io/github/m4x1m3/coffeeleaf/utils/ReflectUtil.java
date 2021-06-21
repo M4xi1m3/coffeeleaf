@@ -18,10 +18,11 @@
  */
 package io.github.m4x1m3.coffeeleaf.utils;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.reflections.Reflections;
 import org.reflections.scanners.SubTypesScanner;
@@ -43,11 +44,23 @@ public class ReflectUtil {
 	 * @param bases List of packages names
 	 * @return Set of classes
 	 */
-	public static Set<Class<?>> getUMLClasses() {
-		HashSet<Class<?>> out = new HashSet<Class<?>>();
+	public static Map<Class<?>, GenUML> getUMLClasses() {
+		HashMap<Class<?>, GenUML> out = new HashMap<Class<?>, GenUML>();
 
 		Reflections r = new Reflections("", new SubTypesScanner(false), new TypeAnnotationsScanner());
-		out.addAll(r.getTypesAnnotatedWith(GenUML.class));
+		r.getSubTypesOf(Object.class).forEach(t -> {
+			if (t.getPackage().isAnnotationPresent(GenUML.class)) {
+				if (t.getPackage().getAnnotation(GenUML.class).classes()) {
+					Reflections r2 = new Reflections(t.getPackage().getName(), new SubTypesScanner(false));
+					
+					r2.getSubTypesOf(Object.class).stream().filter(c -> !c.getSimpleName().equals("package-info")).forEach(c -> {
+						out.put(c, t.getPackage().getAnnotation(GenUML.class));
+					});
+				}
+			}
+		});
+		
+		// out.addAll(r.getTypesAnnotatedWith(GenUML.class).stream().filter(c -> !c.getSimpleName().equals("package-info")).toList());
 
 		return out;
 	}
@@ -73,7 +86,7 @@ public class ReflectUtil {
 		else
 			return UMLAccessLevel.PACKAGE;
 	}
-	
+
 	public static UMLClassType getClassType(Class<? extends Object> c) {
 		if (c.isEnum())
 			return UMLClassType.ENUM;
@@ -85,6 +98,17 @@ public class ReflectUtil {
 			return UMLClassType.ABSTRACT;
 		else
 			return UMLClassType.CLASS;
+	}
+
+	public static UMLAccessLevel getAccessLevel(Constructor<?> c) {
+		if ((c.getModifiers() & Modifier.PRIVATE) != 0)
+			return UMLAccessLevel.PRIVATE;
+		else if ((c.getModifiers() & Modifier.PUBLIC) != 0)
+			return UMLAccessLevel.PUBLIC;
+		else if ((c.getModifiers() & Modifier.PROTECTED) != 0)
+			return UMLAccessLevel.PROTECTED;
+		else
+			return UMLAccessLevel.PACKAGE;
 	}
 
 }

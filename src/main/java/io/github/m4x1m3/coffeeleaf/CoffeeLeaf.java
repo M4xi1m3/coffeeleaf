@@ -18,7 +18,6 @@
  */
 package io.github.m4x1m3.coffeeleaf;
 
-import io.github.m4x1m3.coffeeleaf.annotations.GenUML;
 import io.github.m4x1m3.coffeeleaf.generator.PUMLGenerator;
 import io.github.m4x1m3.coffeeleaf.model.UMLModel;
 import io.github.m4x1m3.coffeeleaf.utils.ReflectUtil;
@@ -28,16 +27,14 @@ import io.github.m4x1m3.coffeeleaf.utils.ReflectUtil;
  * 
  * @author Maxime "M4x1m3" FRIESS
  */
-@GenUML(methods = true)
 public class CoffeeLeaf {
 	public static void main(String[] args) {
 
 		UMLModel model = new UMLModel("default");
 
-		for (Class<? extends Object> c : ReflectUtil.getUMLClasses()) {
-			c.getModifiers();
-			model.addClass(c);
-		}
+		ReflectUtil.getUMLClasses().forEach((c, gu) -> {
+			model.addClass(c, gu);
+		});
 
 		PUMLGenerator out = new PUMLGenerator(System.out);
 		out.generate(model);

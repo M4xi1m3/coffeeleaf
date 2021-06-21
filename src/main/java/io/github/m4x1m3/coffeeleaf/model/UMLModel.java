@@ -18,9 +18,8 @@
  */
 package io.github.m4x1m3.coffeeleaf.model;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.Parameter;
 import java.util.ArrayDeque;
 
 import io.github.m4x1m3.coffeeleaf.annotations.GenUML;
@@ -30,7 +29,6 @@ import io.github.m4x1m3.coffeeleaf.annotations.GenUML;
  * 
  * @author Maxime "M4x1m3" FRIESS
  */
-@GenUML(methods = true)
 public class UMLModel {
 	private String name;
 
@@ -41,7 +39,7 @@ public class UMLModel {
 		this.rootpkg = new UMLRootPackage();
 	}
 
-	public void addClass(Class<? extends Object> clazz) {
+	public void addClass(Class<? extends Object> clazz, GenUML gu) {
 		String name = clazz.getCanonicalName();
 
 		ArrayDeque<String> names = new ArrayDeque<String>();
@@ -57,37 +55,23 @@ public class UMLModel {
 
 		UMLClass c = new UMLClass(clazz, current);
 
-		if (clazz.getAnnotation(GenUML.class).methods()) {
-			
-			for (Method m : clazz.getDeclaredMethods()) {
-				// Dirty hack to avoir lambdas and other shit
-				if (m.getDeclaringClass().equals(clazz) && !m.getName().contains("$")) {
-					UMLMethod meth = new UMLMethod(m);
-
-					for (Parameter p : m.getParameters()) {
-						meth.addParam(new UMLParameter(p));
-					}
-
-					c.addMethod(meth);
-				}
-
-			}
-		} else {
-			for (Method m : clazz.getDeclaredMethods()) {
-				if (m.isAnnotationPresent(GenUML.class)) {
-					UMLMethod meth = new UMLMethod(m);
-
-					for (Parameter p : m.getParameters()) {
-						meth.addParam(new UMLParameter(p));
-					}
-
-					c.addMethod(meth);
-				}
-
+		for (Method m : clazz.getDeclaredMethods()) {
+			// Dirty hack to avoid lambdas and other shit
+			if ((m.getDeclaringClass().equals(clazz) && !m.getName().contains("$")
+					&& gu.methods()) || m.isAnnotationPresent(GenUML.class)) {
+				UMLMethod meth = new UMLMethod(m, c);
+				c.addMethod(meth);
 			}
 		}
 		
-
+		for(Constructor<?> t : clazz.getDeclaredConstructors()) {
+			// Dirty hack to avoid lambdas and other shit
+			if ((t.getDeclaringClass().equals(clazz) && !t.getName().contains("$")
+					&& gu.constructors()) || t.isAnnotationPresent(GenUML.class)) {
+				UMLConstructor cons = new UMLConstructor(t, c);
+				c.addConstructor(cons);
+			}
+		}
 
 		current.addClass(c);
 
