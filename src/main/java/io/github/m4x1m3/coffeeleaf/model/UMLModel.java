@@ -22,6 +22,10 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayDeque;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import io.github.m4x1m3.coffeeleaf.annotations.GenUML;
 
@@ -33,11 +37,16 @@ import io.github.m4x1m3.coffeeleaf.annotations.GenUML;
 public class UMLModel {
 	private String name;
 
+	private Set<UMLRelation> relations;
+	private Map<Class<?>, UMLClass> classes;
+
 	private UMLRootPackage rootpkg;
 
 	public UMLModel(String name) {
 		this.name = name;
 		this.rootpkg = new UMLRootPackage();
+		this.relations = new HashSet<UMLRelation>();
+		this.classes = new HashMap<Class<?>, UMLClass>();
 	}
 
 	public void addClass(Class<? extends Object> clazz, GenUML gu) {
@@ -58,32 +67,47 @@ public class UMLModel {
 
 		for (Method m : clazz.getDeclaredMethods()) {
 			// Dirty hack to avoid lambdas and other shit
-			if ((m.getDeclaringClass().equals(clazz) && !m.getName().contains("$")
-					&& gu.methods()) || m.isAnnotationPresent(GenUML.class)) {
+			if ((m.getDeclaringClass().equals(clazz) && !m.getName().contains("$") && gu.methods())
+					|| m.isAnnotationPresent(GenUML.class)) {
 				UMLMethod meth = new UMLMethod(m, c);
 				c.addMethod(meth);
 			}
 		}
-		
-		for(Constructor<?> t : clazz.getDeclaredConstructors()) {
+
+		for (Constructor<?> t : clazz.getDeclaredConstructors()) {
 			// Dirty hack to avoid lambdas and other shit
-			if ((t.getDeclaringClass().equals(clazz) && !t.getName().contains("$")
-					&& gu.constructors()) || t.isAnnotationPresent(GenUML.class)) {
+			if ((t.getDeclaringClass().equals(clazz) && !t.getName().contains("$") && gu.constructors())
+					|| t.isAnnotationPresent(GenUML.class)) {
 				UMLConstructor cons = new UMLConstructor(t, c);
 				c.addConstructor(cons);
 			}
 		}
-		
-		for(Field f : clazz.getDeclaredFields()) {
+
+		for (Field f : clazz.getDeclaredFields()) {
 			// Dirty hack to avoid lambdas and other shit
-			if ((f.getDeclaringClass().equals(clazz) && !f.getName().contains("$")
-					&& gu.fields()) || f.isAnnotationPresent(GenUML.class)) {
+			if ((f.getDeclaringClass().equals(clazz) && !f.getName().contains("$") && gu.fields())
+					|| f.isAnnotationPresent(GenUML.class)) {
 				UMLField field = new UMLField(f, c);
 				c.addField(field);
 			}
 		}
 
 		current.addClass(c);
+		this.classes.put(clazz, c);
+
+		for (Class<?> inter : clazz.getInterfaces()) {
+			if (!this.classes.containsKey(inter))
+				this.addClass(inter, gu);
+			this.addRelation(new UMLRelation(classes.get(clazz), classes.get(inter), UMLRelationType.IMPLEMENTS,
+					UMLRelationDirection.UP));
+		}
+
+		if (clazz.getSuperclass() != null && clazz.getSuperclass() != Object.class) {
+			if (!this.classes.containsKey(clazz.getSuperclass()))
+				this.addClass(clazz.getSuperclass(), gu);
+			this.addRelation(new UMLRelation(classes.get(clazz), classes.get(clazz.getSuperclass()),
+					UMLRelationType.EXTENDS, UMLRelationDirection.UP));
+		}
 
 	}
 
@@ -93,6 +117,14 @@ public class UMLModel {
 
 	public UMLRootPackage getRootPackage() {
 		return rootpkg;
+	}
+
+	public void addRelation(UMLRelation rel) {
+		this.relations.add(rel);
+	}
+
+	public Set<UMLRelation> getRelations() {
+		return new HashSet<UMLRelation>(this.relations);
 	}
 
 	public void debug() {

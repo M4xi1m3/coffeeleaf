@@ -30,6 +30,9 @@ import io.github.m4x1m3.coffeeleaf.model.UMLMethod;
 import io.github.m4x1m3.coffeeleaf.model.UMLModel;
 import io.github.m4x1m3.coffeeleaf.model.UMLPackage;
 import io.github.m4x1m3.coffeeleaf.model.UMLParameter;
+import io.github.m4x1m3.coffeeleaf.model.UMLRelation;
+import io.github.m4x1m3.coffeeleaf.model.UMLRelationDirection;
+import io.github.m4x1m3.coffeeleaf.model.UMLRelationType;
 import io.github.m4x1m3.coffeeleaf.model.UMLRootPackage;
 
 /**
@@ -50,6 +53,14 @@ public class PUMLGenerator {
 
 		root.forEachPackage(p -> generatePackage(p));
 		root.forEachClass(c -> generateClasses(c));
+		model.getRelations().forEach(r -> generateRelation(r));
+	}
+
+	private void generateRelation(UMLRelation r) {
+		out.print(r.getFrom().getName());
+		out.print(arrowType(r.getType(), r.getDirection()));
+		out.print(r.getTo().getName());
+		out.println();
 	}
 
 	private void generatePackage(UMLPackage pkg) {
@@ -61,6 +72,33 @@ public class PUMLGenerator {
 		} else {
 			pkg.forEachPackage(p -> generatePackage(p));
 		}
+	}
+
+	private String arrowDirection(UMLRelationDirection direction) {
+		switch (direction) {
+		case DOWN:
+			return "d";
+		case LEFT:
+			return "l";
+		case RIGHT:
+			return "r";
+		default:
+			return "u";
+		}
+	}
+
+	private String arrowType(UMLRelationType type, UMLRelationDirection direction) {
+		String d = arrowDirection(direction);
+
+		switch (type) {
+		case EXTENDS:
+			return " -" + d + "-|> ";
+		case IMPLEMENTS:
+			return " ." + d + ".|> ";
+		default:
+			return " -" + d + "-> ";
+		}
+
 	}
 
 	private String typeName(UMLClassType t) {
@@ -90,20 +128,20 @@ public class PUMLGenerator {
 			return "+";
 		}
 	}
-	
+
 	private void generateConstructor(UMLConstructor cons) {
 		out.print(this.accessLevelChar(cons.getAccessLevel()));
 
 		out.print(cons.getClazz().getName() + "(");
 
 		ArrayList<String> params = new ArrayList<String>();
-		
-		for(UMLParameter par : cons.getParams()) {
+
+		for (UMLParameter par : cons.getParams()) {
 			params.add(par.getName() + ":" + par.getType().getSimpleName() + (par.isVariable() ? "..." : ""));
 		}
-		
+
 		out.print(String.join(", ", params));
-		
+
 		out.println(")");
 	}
 
@@ -114,37 +152,37 @@ public class PUMLGenerator {
 			out.print("{abstract} ");
 		if (met.isStatic())
 			out.print("{static} ");
-		
+
 		out.print(met.getName() + "(");
-		
+
 		ArrayList<String> params = new ArrayList<String>();
-		
-		for(UMLParameter par : met.getParams()) {
+
+		for (UMLParameter par : met.getParams()) {
 			params.add(par.getName() + ":" + par.getType().getSimpleName() + (par.isVariable() ? "..." : ""));
 		}
-		
+
 		out.print(String.join(", ", params));
-		
+
 		out.print(")");
-		
+
 		if (!met.getReturnType().equals(Void.TYPE)) {
 			out.print(": " + met.getReturnType().getSimpleName());
 		}
-		
+
 		if (met.isFinal())
 			out.print(" <<final>>");
 		out.println();
 	}
-	
+
 	private void generateFields(UMLField field) {
 		out.print(this.accessLevelChar(field.getAccessLevel()));
 
 		if (field.isStatic())
 			out.print("{static} ");
-		
+
 		out.print(field.getName());
 		out.print(": " + field.getType().getSimpleName());
-		
+
 		if (field.isFinal())
 			out.print(" <<final>>");
 		out.println();
@@ -164,20 +202,20 @@ public class PUMLGenerator {
 		out.println(" {");
 
 		out.println("' Constructors");
-		for(UMLConstructor cons : cls.getConstructors()) {
+		for (UMLConstructor cons : cls.getConstructors()) {
 			generateConstructor(cons);
 		}
 
 		out.println("' Fields");
-		for(UMLField field : cls.getFields()) {
+		for (UMLField field : cls.getFields()) {
 			generateFields(field);
 		}
 
 		out.println("' Methods");
-		for(UMLMethod met : cls.getMethods()) {
+		for (UMLMethod met : cls.getMethods()) {
 			generateMethod(met);
 		}
-		
+
 		out.println("}");
 		out.println();
 	}
