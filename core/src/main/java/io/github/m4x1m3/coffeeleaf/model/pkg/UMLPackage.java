@@ -23,6 +23,7 @@ import java.util.HashSet;
 
 import io.github.m4x1m3.coffeeleaf.model.UMLModel;
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLClass;
+import io.github.m4x1m3.coffeeleaf.model.cls.UMLTemplateClass;
 
 /**
  * Represents a Package in the UML
@@ -211,6 +212,16 @@ public class UMLPackage {
 	public void addClass(UMLClass umlClass) {
 		umlClass.setParent(this);
 		this.getModel().addClass(umlClass);
+
+		for (UMLClass c : this.subClasses) {
+			if (c.getName().equals(umlClass.getName())) {
+				if (c instanceof UMLTemplateClass) {
+					this.subClasses.remove(c);
+					break;
+				}
+			}
+		}
+
 		this.subClasses.add(umlClass);
 	}
 

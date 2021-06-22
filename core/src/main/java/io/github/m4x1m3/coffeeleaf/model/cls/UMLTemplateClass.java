@@ -16,30 +16,16 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with CoffeeLeaf.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.m4x1m3.coffeeleaf.main;
-
-import java.util.Set;
-
-import io.github.m4x1m3.coffeeleaf.generator.IGenerator;
-import io.github.m4x1m3.coffeeleaf.generator.puml.PUMLGenerator;
-import io.github.m4x1m3.coffeeleaf.loader.ILoader;
-import io.github.m4x1m3.coffeeleaf.loader.java.JavaLoader;
-import io.github.m4x1m3.coffeeleaf.model.UMLModel;
+package io.github.m4x1m3.coffeeleaf.model.cls;
 
 /**
- * Main class
+ * Represents a class that exists but hasn't been found in the sources.
  * 
  * @author Maxime "M4x1m3" FRIESS
  */
-public class CoffeeLeaf {
-	public static void main(String[] args) {
-		ILoader in = new JavaLoader();
-		// in.load();
-
-		Set<UMLModel> models = in.load();
-
-		IGenerator out = new PUMLGenerator(System.out);
-
-		models.forEach(m -> out.generate(m));
+public class UMLTemplateClass extends UMLClass {
+	public UMLTemplateClass(String name) {
+		super();
+		this.setName(name);
 	}
 }

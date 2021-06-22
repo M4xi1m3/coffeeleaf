@@ -30,6 +30,7 @@ import io.github.m4x1m3.coffeeleaf.model.cls.UMLConstructor;
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLField;
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLMethod;
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLParameter;
+import io.github.m4x1m3.coffeeleaf.model.cls.UMLTemplateClass;
 import io.github.m4x1m3.coffeeleaf.model.pkg.UMLPackage;
 import io.github.m4x1m3.coffeeleaf.model.pkg.UMLRootPackage;
 import io.github.m4x1m3.coffeeleaf.model.pri.Primitives;
@@ -191,6 +192,11 @@ public class PUMLGenerator implements IGenerator {
 	}
 
 	private void generateClasses(UMLClass cls) {
+
+		if (cls instanceof UMLTemplateClass) {
+			out.println("entity " + cls.getName() + " {}");
+			return;
+		}
 
 		if (accessLevelOnClass) {
 			out.print(accessLevelChar(cls.getAccessLevel()));

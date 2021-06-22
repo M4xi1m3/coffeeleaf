@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLClass;
+import io.github.m4x1m3.coffeeleaf.model.cls.UMLTemplateClass;
 import io.github.m4x1m3.coffeeleaf.model.pkg.UMLPackage;
 import io.github.m4x1m3.coffeeleaf.model.pkg.UMLRootPackage;
 import io.github.m4x1m3.coffeeleaf.model.rel.UMLRelation;
@@ -141,13 +142,34 @@ public class UMLModel {
 		} else {
 			String[] names = name.split("\\.");
 			UMLPackage current = this.getRootPackage();
-			
-			for(String n : names) {
+
+			for (String n : names) {
 				current = current.findOrCreatePackage(n);
 			}
-			
+
 			return current;
 		}
+	}
+
+	/**
+	 * Get the class associated with the absolute name, or create it as a template.
+	 * 
+	 * If name is "", return the root package
+	 * 
+	 * @param pack	Package inwhich the class is
+	 * @param name Class to find
+	 * @return Found or created package
+	 */
+	public UMLClass findClassOrCreateTemplate(UMLPackage pack, String name) {
+		for(UMLClass c : pack.getSubClasses()) {
+			if (c.getName().equals(name)) {
+				return c;
+			}
+		}
+		
+		UMLClass c = new UMLTemplateClass(name);
+		pack.addClass(c);
+		return c;
 	}
 
 	@Override
