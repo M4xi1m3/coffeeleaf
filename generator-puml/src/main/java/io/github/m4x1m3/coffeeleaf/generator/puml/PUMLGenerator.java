@@ -140,7 +140,7 @@ public class PUMLGenerator implements IGenerator {
 		ArrayList<String> params = new ArrayList<String>();
 
 		for (UMLParameter par : cons.getParams()) {
-			params.add(par.getName() + ":" + par.getType().getSimpleName() + (par.isVariable() ? "..." : ""));
+			params.add(par.getName() + ":" + par.getType().getName() + (par.isVariable() ? "..." : ""));
 		}
 
 		out.print(String.join(", ", params));
@@ -161,7 +161,7 @@ public class PUMLGenerator implements IGenerator {
 		ArrayList<String> params = new ArrayList<String>();
 
 		for (UMLParameter par : met.getParams()) {
-			params.add(par.getName() + ":" + par.getType().getSimpleName() + (par.isVariable() ? "..." : ""));
+			params.add(par.getName() + ":" + par.getType().getName() + (par.isVariable() ? "..." : ""));
 		}
 
 		out.print(String.join(", ", params));

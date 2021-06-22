@@ -30,9 +30,15 @@ import com.github.javaparser.StaticJavaParser;
 import com.github.javaparser.ast.AccessSpecifier;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+import com.github.javaparser.ast.body.ConstructorDeclaration;
 import com.github.javaparser.ast.body.FieldDeclaration;
+import com.github.javaparser.ast.body.MethodDeclaration;
+import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.TypeDeclaration;
+import com.github.javaparser.resolution.declarations.ResolvedConstructorDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration;
+import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
+import com.github.javaparser.resolution.declarations.ResolvedParameterDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration;
 import com.github.javaparser.resolution.types.ResolvedPrimitiveType;
 import com.github.javaparser.resolution.types.ResolvedType;
@@ -47,7 +53,10 @@ import io.github.m4x1m3.coffeeleaf.model.cls.UMLAccessLevel;
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLArray;
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLClass;
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLClassType;
+import io.github.m4x1m3.coffeeleaf.model.cls.UMLConstructor;
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLField;
+import io.github.m4x1m3.coffeeleaf.model.cls.UMLMethod;
+import io.github.m4x1m3.coffeeleaf.model.cls.UMLParameter;
 import io.github.m4x1m3.coffeeleaf.model.pkg.UMLPackage;
 import io.github.m4x1m3.coffeeleaf.model.pri.Primitives;
 
@@ -107,8 +116,6 @@ public class JavaLoader implements ILoader {
 	}
 
 	private UMLClass getType(ResolvedType type, UMLModel model) {
-		System.out.println(type);
-
 		if (type.isPrimitive()) {
 			return getPrimitiveType(type.asPrimitive());
 		} else if (type.isArray()) {
@@ -118,7 +125,8 @@ public class JavaLoader implements ILoader {
 		} else if (type.isReferenceType()) {
 			if (type.asReferenceType().getTypeDeclaration().isPresent()) {
 				ResolvedReferenceTypeDeclaration decl = type.asReferenceType().getTypeDeclaration().get();
-				return model.findClassOrCreateTemplate(model.findPackageOrCreate(decl.getPackageName()), decl.getName());
+				return model.findClassOrCreateTemplate(model.findPackageOrCreate(decl.getPackageName()),
+						decl.getName());
 			}
 		}
 
@@ -179,6 +187,41 @@ public class JavaLoader implements ILoader {
 										this.getType(decfield.getType(), model), fieldlevel, field.isFinal(),
 										field.isStatic());
 								clazz.addField(umlfield);
+							}
+
+							for (MethodDeclaration method : classdec.getMethods()) {
+								ResolvedMethodDeclaration decmethod = method.resolve();
+								UMLAccessLevel methodlevel = getAccessLevel(method.getAccessSpecifier());
+
+								UMLMethod umlmethod = new UMLMethod(decmethod.getName(),
+										this.getType(decmethod.getReturnType(), model), methodlevel,
+										method.isAbstract(), method.isStatic(), method.isFinal());
+
+								for (Parameter param : method.getParameters()) {
+									ResolvedParameterDeclaration decparam = param.resolve();
+
+									UMLParameter umlparam = new UMLParameter(this.getType(decparam.getType(), model),
+											param.getNameAsString(), decparam.isVariable(), umlmethod);
+									umlmethod.addParam(umlparam);
+								}
+
+								clazz.addMethod(umlmethod);
+							}
+							
+							for (ConstructorDeclaration constructor : classdec.getConstructors()) {
+								UMLAccessLevel constructorlevel = getAccessLevel(constructor.getAccessSpecifier());
+								
+								UMLConstructor umlconstructor = new UMLConstructor(constructorlevel);
+
+								for (Parameter param : constructor.getParameters()) {
+									ResolvedParameterDeclaration decparam = param.resolve();
+
+									UMLParameter umlparam = new UMLParameter(this.getType(decparam.getType(), model),
+											param.getNameAsString(), decparam.isVariable(), umlconstructor);
+									umlconstructor.addParam(umlparam);
+								}
+
+								clazz.addConstructor(umlconstructor);
 							}
 						}
 					}
