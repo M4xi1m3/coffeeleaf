@@ -16,10 +16,10 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with CoffeeLeaf.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.m4x1m3.coffeeleaf;
+package io.github.m4x1m3.coffeeleaf.main;
 
 import io.github.m4x1m3.coffeeleaf.generator.IGenerator;
-import io.github.m4x1m3.coffeeleaf.generator.PUMLGenerator;
+import io.github.m4x1m3.coffeeleaf.generator.puml.PUMLGenerator;
 import io.github.m4x1m3.coffeeleaf.model.UMLModel;
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLAccessLevel;
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLClass;

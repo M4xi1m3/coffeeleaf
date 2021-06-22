@@ -16,11 +16,12 @@
  * You should have received a copy of the GNU General Public License
  * along with CoffeeLeaf.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.m4x1m3.coffeeleaf.generator;
+package io.github.m4x1m3.coffeeleaf.generator.puml;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
 
+import io.github.m4x1m3.coffeeleaf.generator.IGenerator;
 import io.github.m4x1m3.coffeeleaf.model.UMLModel;
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLAccessLevel;
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLClass;
