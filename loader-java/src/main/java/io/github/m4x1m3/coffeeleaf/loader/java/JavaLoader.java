@@ -18,20 +18,25 @@
  */
 package io.github.m4x1m3.coffeeleaf.loader.java;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
+
+import com.github.javaparser.ParseProblemException;
+import com.github.javaparser.StaticJavaParser;
+import com.github.javaparser.ast.AccessSpecifier;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
 
 import io.github.m4x1m3.coffeeleaf.loader.ILoader;
 import io.github.m4x1m3.coffeeleaf.model.UMLModel;
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLAccessLevel;
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLClass;
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLClassType;
-import io.github.m4x1m3.coffeeleaf.model.cls.UMLMethod;
 import io.github.m4x1m3.coffeeleaf.model.pkg.UMLPackage;
-import io.github.m4x1m3.coffeeleaf.model.pri.Primitives;
-import io.github.m4x1m3.coffeeleaf.model.rel.UMLRelation;
-import io.github.m4x1m3.coffeeleaf.model.rel.UMLRelationDirection;
-import io.github.m4x1m3.coffeeleaf.model.rel.UMLRelationType;
 
 /**
  * Load from Java sourcecode
@@ -40,29 +45,88 @@ import io.github.m4x1m3.coffeeleaf.model.rel.UMLRelationType;
  */
 public class JavaLoader implements ILoader {
 
+	private UMLAccessLevel getAccessLevel(AccessSpecifier a) {
+		switch (a) {
+		case PACKAGE_PRIVATE:
+			return UMLAccessLevel.PACKAGE;
+		case PRIVATE:
+			return UMLAccessLevel.PRIVATE;
+		case PROTECTED:
+			return UMLAccessLevel.PROTECTED;
+		default:
+			return UMLAccessLevel.PUBLIC;
+		}
+	}
+
+	public UMLClassType getClassType(ClassOrInterfaceDeclaration d) {
+		if (d.isAnnotationDeclaration())
+			return UMLClassType.ANNOTATION;
+		if (d.isInterface())
+			return UMLClassType.INTERFACE;
+		if (d.isAbstract())
+			return UMLClassType.ABSTRACT;
+		if (d.isEnumDeclaration())
+			return UMLClassType.ENUM;
+		return UMLClassType.CLASS;
+	}
+
 	@Override
 	public Set<UMLModel> load() {
-		UMLModel model = new UMLModel("default");
+		Path currentRelativePath = Paths.get("");
+		String s = currentRelativePath.toAbsolutePath().toString();
 
-		UMLPackage pkg = model.getRootPackage().findOrCreatePackage("fr").findOrCreatePackage("m4x1m3")
-				.findOrCreatePackage("test");
+		UMLModel m = new UMLModel("defaut");
 
-		UMLClass main = new UMLClass("Main", UMLAccessLevel.PUBLIC, UMLClassType.CLASS, false);
+		try {
+			for (Path p : Files.walk(Paths.get("../../../eclipse/Fourmis")).filter(p -> p.toString().endsWith("java"))
+					.filter(Files::isRegularFile).toList()) {
 
-		UMLMethod mainmeth = new UMLMethod("main", Primitives.VOID, UMLAccessLevel.PUBLIC, false, true, false);
+				try {
+					// Load the java file and parse it
+					CompilationUnit unit = null;
+					System.err.println("[SCANNING] " + p.toString());
 
-		UMLClass test = new UMLClass("Test", UMLAccessLevel.PUBLIC, UMLClassType.CLASS, false);
+					try {
+						unit = StaticJavaParser.parse(p);
+					} catch (ParseProblemException e2) {
+						System.err.println("[WARNING] Error occured: " + e2.getMessage().split("\n")[0]);
+						continue;
+					}
 
-		UMLRelation rel = new UMLRelation(main, test, UMLRelationType.USE, UMLRelationDirection.RIGHT);
+					// Get the package name
+					String packageName = "";
 
-		main.addMethod(mainmeth);
+					if (unit.getPackageDeclaration().isPresent())
+						packageName = unit.getPackageDeclaration().get().getNameAsString();
 
-		pkg.addClass(main);
-		pkg.addClass(test);
-		model.addRelation(rel);
+					UMLPackage pkg = m.findPackageOrCreate(packageName);
+
+					// Get the primary type and scan it
+					unit.getPrimaryType().ifPresent(t -> {
+						if (t.isClassOrInterfaceDeclaration()) {
+							ClassOrInterfaceDeclaration d = t.asClassOrInterfaceDeclaration();
+							UMLAccessLevel level = getAccessLevel(t.getAccessSpecifier());
+							UMLClassType type = getClassType(d);
+							boolean isFinal = d.isFinal();
+							UMLClass c = new UMLClass(t.getNameAsString(), level, type, isFinal);
+							pkg.addClass(c);
+						}
+					});
+
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		HashSet<UMLModel> models = new HashSet<UMLModel>();
-		models.add(model);
+
+		models.add(m);
+
 		return models;
 	}
 

@@ -66,7 +66,7 @@ public class PUMLGenerator implements IGenerator {
 	}
 
 	private void generatePackage(UMLPackage pkg) {
-		if (pkg.hasClasses()) {
+		if (pkg.hasClasses() || !pkg.hasPackages()) {
 			out.println("package " + pkg.getFullName() + " {");
 			pkg.getSubPackages().forEach(p -> generatePackage(p));
 			pkg.getSubClasses().forEach(c -> generateClasses(c));

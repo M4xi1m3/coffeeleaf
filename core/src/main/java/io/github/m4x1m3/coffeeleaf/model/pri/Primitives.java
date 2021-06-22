@@ -33,4 +33,6 @@ public class Primitives {
 	public static final UMLPrimitive LONG = new UMLPrimitive("long");
 	public static final UMLPrimitive FLOAT = new UMLPrimitive("float");
 	public static final UMLPrimitive DOUBLE = new UMLPrimitive("double");
+
+	public static final UMLPrimitive UNKNOWN = new UMLPrimitive("???");
 }

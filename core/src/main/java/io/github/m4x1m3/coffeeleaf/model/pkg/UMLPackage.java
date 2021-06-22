@@ -63,7 +63,7 @@ public class UMLPackage {
 	}
 
 	/**
-	 * Looks for package name anf creates it if not found
+	 * Looks for package name and creates it if not found
 	 * 
 	 * @param name Name of the package to find
 	 * @return Package
