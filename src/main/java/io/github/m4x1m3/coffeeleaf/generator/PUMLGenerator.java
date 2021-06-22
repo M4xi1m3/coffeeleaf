@@ -21,25 +21,26 @@ package io.github.m4x1m3.coffeeleaf.generator;
 import java.io.PrintStream;
 import java.util.ArrayList;
 
-import io.github.m4x1m3.coffeeleaf.model.UMLAccessLevel;
-import io.github.m4x1m3.coffeeleaf.model.UMLClass;
-import io.github.m4x1m3.coffeeleaf.model.UMLClassType;
-import io.github.m4x1m3.coffeeleaf.model.UMLConstructor;
-import io.github.m4x1m3.coffeeleaf.model.UMLField;
-import io.github.m4x1m3.coffeeleaf.model.UMLMethod;
 import io.github.m4x1m3.coffeeleaf.model.UMLModel;
-import io.github.m4x1m3.coffeeleaf.model.UMLPackage;
-import io.github.m4x1m3.coffeeleaf.model.UMLParameter;
-import io.github.m4x1m3.coffeeleaf.model.UMLRelation;
-import io.github.m4x1m3.coffeeleaf.model.UMLRelationDirection;
-import io.github.m4x1m3.coffeeleaf.model.UMLRelationType;
-import io.github.m4x1m3.coffeeleaf.model.UMLRootPackage;
+import io.github.m4x1m3.coffeeleaf.model.cls.UMLAccessLevel;
+import io.github.m4x1m3.coffeeleaf.model.cls.UMLClass;
+import io.github.m4x1m3.coffeeleaf.model.cls.UMLClassType;
+import io.github.m4x1m3.coffeeleaf.model.cls.UMLConstructor;
+import io.github.m4x1m3.coffeeleaf.model.cls.UMLField;
+import io.github.m4x1m3.coffeeleaf.model.cls.UMLMethod;
+import io.github.m4x1m3.coffeeleaf.model.cls.UMLParameter;
+import io.github.m4x1m3.coffeeleaf.model.pkg.UMLPackage;
+import io.github.m4x1m3.coffeeleaf.model.pkg.UMLRootPackage;
+import io.github.m4x1m3.coffeeleaf.model.pri.Primitives;
+import io.github.m4x1m3.coffeeleaf.model.rel.UMLRelation;
+import io.github.m4x1m3.coffeeleaf.model.rel.UMLRelationDirection;
+import io.github.m4x1m3.coffeeleaf.model.rel.UMLRelationType;
 
 /**
  * @author Maxime "M4x1m3" FRIESS
  *
  */
-public class PUMLGenerator {
+public class PUMLGenerator implements IGenerator {
 	private PrintStream out;
 	private boolean accessLevelOnClass = false;
 	private boolean repeatType = false;
@@ -51,8 +52,8 @@ public class PUMLGenerator {
 	public void generate(UMLModel model) {
 		UMLRootPackage root = model.getRootPackage();
 
-		root.forEachPackage(p -> generatePackage(p));
-		root.forEachClass(c -> generateClasses(c));
+		root.getSubPackages().forEach(p -> generatePackage(p));
+		root.getSubClasses().forEach(c -> generateClasses(c));
 		model.getRelations().forEach(r -> generateRelation(r));
 	}
 
@@ -66,11 +67,11 @@ public class PUMLGenerator {
 	private void generatePackage(UMLPackage pkg) {
 		if (pkg.hasClasses()) {
 			out.println("package " + pkg.getFullName() + " {");
-			pkg.forEachPackage(p -> generatePackage(p));
-			pkg.forEachClass(c -> generateClasses(c));
+			pkg.getSubPackages().forEach(p -> generatePackage(p));
+			pkg.getSubClasses().forEach(c -> generateClasses(c));
 			out.println("}");
 		} else {
-			pkg.forEachPackage(p -> generatePackage(p));
+			pkg.getSubPackages().forEach(p -> generatePackage(p));
 		}
 	}
 
@@ -165,8 +166,8 @@ public class PUMLGenerator {
 
 		out.print(")");
 
-		if (!met.getReturnType().equals(Void.TYPE)) {
-			out.print(": " + met.getReturnType().getSimpleName());
+		if (!met.getReturnType().equals(Primitives.VOID)) {
+			out.print(": " + met.getReturnType().getName());
 		}
 
 		if (met.isFinal())
@@ -181,7 +182,7 @@ public class PUMLGenerator {
 			out.print("{static} ");
 
 		out.print(field.getName());
-		out.print(": " + field.getType().getSimpleName());
+		out.print(": " + field.getType().getName());
 
 		if (field.isFinal())
 			out.print(" <<final>>");

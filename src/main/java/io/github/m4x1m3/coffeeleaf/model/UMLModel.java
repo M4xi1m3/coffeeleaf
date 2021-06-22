@@ -18,16 +18,14 @@
  */
 package io.github.m4x1m3.coffeeleaf.model;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import io.github.m4x1m3.coffeeleaf.annotations.GenUML;
+import io.github.m4x1m3.coffeeleaf.model.cls.UMLClass;
+import io.github.m4x1m3.coffeeleaf.model.pkg.UMLRootPackage;
+import io.github.m4x1m3.coffeeleaf.model.rel.UMLRelation;
 
 /**
  * Represents a UML Model
@@ -35,100 +33,115 @@ import io.github.m4x1m3.coffeeleaf.annotations.GenUML;
  * @author Maxime "M4x1m3" FRIESS
  */
 public class UMLModel {
+	/**
+	 * Name of the model
+	 */
 	private String name;
 
+	/**
+	 * Relations present in the model
+	 */
 	private Set<UMLRelation> relations;
-	private Map<Class<?>, UMLClass> classes;
 
+	/**
+	 * Classes present in the model
+	 */
+	private Map<String, UMLClass> classes;
+
+	/**
+	 * Root package of the model
+	 */
 	private UMLRootPackage rootpkg;
 
+	/**
+	 * Constructor
+	 * 
+	 * @param name Name of the model
+	 */
 	public UMLModel(String name) {
 		this.name = name;
-		this.rootpkg = new UMLRootPackage();
+		this.rootpkg = new UMLRootPackage(this);
 		this.relations = new HashSet<UMLRelation>();
-		this.classes = new HashMap<Class<?>, UMLClass>();
+		this.classes = new HashMap<String, UMLClass>();
 	}
 
-	public void addClass(Class<? extends Object> clazz, GenUML gu) {
-		String name = clazz.getCanonicalName();
-
-		ArrayDeque<String> names = new ArrayDeque<String>();
-		for (String s : name.split("\\.")) {
-			names.add(s);
-		}
-
-		UMLPackage current = rootpkg;
-
-		while (names.size() > 1) {
-			current = current.findOrCreatePackage(names.pop());
-		}
-
-		UMLClass c = new UMLClass(clazz, current);
-
-		for (Method m : clazz.getDeclaredMethods()) {
-			// Dirty hack to avoid lambdas and other shit
-			if ((m.getDeclaringClass().equals(clazz) && !m.getName().contains("$") && gu.methods())
-					|| m.isAnnotationPresent(GenUML.class)) {
-				UMLMethod meth = new UMLMethod(m, c);
-				c.addMethod(meth);
-			}
-		}
-
-		for (Constructor<?> t : clazz.getDeclaredConstructors()) {
-			// Dirty hack to avoid lambdas and other shit
-			if ((t.getDeclaringClass().equals(clazz) && !t.getName().contains("$") && gu.constructors())
-					|| t.isAnnotationPresent(GenUML.class)) {
-				UMLConstructor cons = new UMLConstructor(t, c);
-				c.addConstructor(cons);
-			}
-		}
-
-		for (Field f : clazz.getDeclaredFields()) {
-			// Dirty hack to avoid lambdas and other shit
-			if ((f.getDeclaringClass().equals(clazz) && !f.getName().contains("$") && gu.fields())
-					|| f.isAnnotationPresent(GenUML.class)) {
-				UMLField field = new UMLField(f, c);
-				c.addField(field);
-			}
-		}
-
-		current.addClass(c);
-		this.classes.put(clazz, c);
-
-		for (Class<?> inter : clazz.getInterfaces()) {
-			if (!this.classes.containsKey(inter))
-				this.addClass(inter, gu);
-			this.addRelation(new UMLRelation(classes.get(clazz), classes.get(inter), UMLRelationType.IMPLEMENTS,
-					UMLRelationDirection.UP));
-		}
-
-		if (clazz.getSuperclass() != null && clazz.getSuperclass() != Object.class) {
-			if (!this.classes.containsKey(clazz.getSuperclass()))
-				this.addClass(clazz.getSuperclass(), gu);
-			this.addRelation(new UMLRelation(classes.get(clazz), classes.get(clazz.getSuperclass()),
-					UMLRelationType.EXTENDS, UMLRelationDirection.UP));
-		}
-
-	}
-
+	/**
+	 * Get the name of the model
+	 * 
+	 * @return Name of the model
+	 */
 	public String getName() {
 		return name;
 	}
 
+	/**
+	 * Get the root package of the model
+	 * 
+	 * @return The root package of the model
+	 */
 	public UMLRootPackage getRootPackage() {
 		return rootpkg;
 	}
 
+	/**
+	 * Add a relation in the model
+	 * 
+	 * @param rel New relation
+	 */
 	public void addRelation(UMLRelation rel) {
 		this.relations.add(rel);
 	}
 
-	public Set<UMLRelation> getRelations() {
-		return new HashSet<UMLRelation>(this.relations);
+	/**
+	 * Add a new class in the model
+	 * 
+	 * @param clazz Class to add
+	 */
+	public void addClass(UMLClass clazz) {
+		this.classes.put(clazz.getFullName(), clazz);
 	}
 
-	public void debug() {
-		System.out.println("[MDL] " + name);
-		rootpkg.debug(0);
+	/**
+	 * Get the relations in the model
+	 * 
+	 * @return Relations in the model
+	 */
+	public Set<UMLRelation> getRelations() {
+		return this.relations;
+	}
+
+	/**
+	 * Get the classes in the model
+	 * 
+	 * @return Map. Key is the full name of the class, value is the class.
+	 */
+	public Map<String, UMLClass> getClasses() {
+		return classes;
+	}
+
+	/**
+	 * Set the name of the model
+	 * 
+	 * @param name New name of the model
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	@Override
+	public int hashCode() {
+		int hash = 7;
+		hash = hash * 31 + name.hashCode();
+		return hash;
+	}
+
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof UMLModel) {
+			UMLModel o = (UMLModel) other;
+			return o.name.equals(this.name);
+		} else {
+			return false;
+		}
 	}
 }

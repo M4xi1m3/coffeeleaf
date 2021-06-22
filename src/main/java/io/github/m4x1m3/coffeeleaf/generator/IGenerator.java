@@ -16,12 +16,14 @@
  * You should have received a copy of the GNU General Public License
  * along with CoffeeLeaf.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.m4x1m3.coffeeleaf.model;
+package io.github.m4x1m3.coffeeleaf.generator;
+
+import io.github.m4x1m3.coffeeleaf.model.UMLModel;
 
 /**
  * @author Maxime "M4x1m3" FRIESS
  *
  */
-public enum UMLAccessLevel {
-	PUBLIC, PACKAGE, PROTECTED, PRIVATE
+public interface IGenerator {
+	void generate(UMLModel model);
 }

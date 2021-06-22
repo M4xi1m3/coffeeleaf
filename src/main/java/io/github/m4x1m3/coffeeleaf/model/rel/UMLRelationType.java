@@ -16,25 +16,12 @@
  * You should have received a copy of the GNU General Public License
  * along with CoffeeLeaf.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.m4x1m3.coffeeleaf.annotations;
-
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+package io.github.m4x1m3.coffeeleaf.model.rel;
 
 /**
  * @author Maxime "M4x1m3" FRIESS
  *
  */
-@Documented
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.METHOD, ElementType.TYPE, ElementType.PACKAGE, ElementType.CONSTRUCTOR})
-public @interface GenUML {
-	public String modelName() default "default";
-	public boolean methods() default false;
-	public boolean constructors() default false;
-	public boolean classes() default false;
-	public boolean fields() default false;
+public enum UMLRelationType {
+	EXTENDS, IMPLEMENTS, USE
 }

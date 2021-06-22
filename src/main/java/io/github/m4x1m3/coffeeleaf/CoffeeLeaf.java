@@ -20,7 +20,11 @@ package io.github.m4x1m3.coffeeleaf;
 
 import io.github.m4x1m3.coffeeleaf.generator.PUMLGenerator;
 import io.github.m4x1m3.coffeeleaf.model.UMLModel;
-import io.github.m4x1m3.coffeeleaf.utils.ReflectUtil;
+import io.github.m4x1m3.coffeeleaf.model.cls.UMLAccessLevel;
+import io.github.m4x1m3.coffeeleaf.model.cls.UMLClass;
+import io.github.m4x1m3.coffeeleaf.model.cls.UMLClassType;
+import io.github.m4x1m3.coffeeleaf.model.cls.UMLMethod;
+import io.github.m4x1m3.coffeeleaf.model.pri.Primitives;
 
 /**
  * Main class
@@ -32,10 +36,15 @@ public class CoffeeLeaf {
 
 		UMLModel model = new UMLModel("default");
 
-		ReflectUtil.getUMLClasses().forEach((c, gu) -> {
-			model.addClass(c, gu);
-		});
-
+		UMLClass main = new UMLClass("Main", UMLAccessLevel.PUBLIC, UMLClassType.CLASS, false);
+		
+		UMLMethod mainmeth = new UMLMethod("main", Primitives.VOID, UMLAccessLevel.PUBLIC, false, true, false);
+		
+		main.addMethod(mainmeth);
+		
+		model.getRootPackage().addClass(main);
+		
+		
 		PUMLGenerator out = new PUMLGenerator(System.out);
 		out.generate(model);
 	}

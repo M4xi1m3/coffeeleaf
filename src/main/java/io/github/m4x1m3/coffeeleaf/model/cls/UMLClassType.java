@@ -16,12 +16,13 @@
  * You should have received a copy of the GNU General Public License
  * along with CoffeeLeaf.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.m4x1m3.coffeeleaf.model;
+package io.github.m4x1m3.coffeeleaf.model.cls;
 
 /**
+ * Represents the different types of classes
+ * 
  * @author Maxime "M4x1m3" FRIESS
- *
  */
-public enum UMLRelationType {
-	EXTENDS, IMPLEMENTS, USE
+public enum UMLClassType {
+	ABSTRACT, INTERFACE, CLASS, ENUM, ANNOTATION
 }
