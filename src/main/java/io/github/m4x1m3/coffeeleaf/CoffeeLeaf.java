@@ -18,13 +18,18 @@
  */
 package io.github.m4x1m3.coffeeleaf;
 
+import io.github.m4x1m3.coffeeleaf.generator.IGenerator;
 import io.github.m4x1m3.coffeeleaf.generator.PUMLGenerator;
 import io.github.m4x1m3.coffeeleaf.model.UMLModel;
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLAccessLevel;
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLClass;
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLClassType;
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLMethod;
+import io.github.m4x1m3.coffeeleaf.model.pkg.UMLPackage;
 import io.github.m4x1m3.coffeeleaf.model.pri.Primitives;
+import io.github.m4x1m3.coffeeleaf.model.rel.UMLRelation;
+import io.github.m4x1m3.coffeeleaf.model.rel.UMLRelationDirection;
+import io.github.m4x1m3.coffeeleaf.model.rel.UMLRelationType;
 
 /**
  * Main class
@@ -35,17 +40,28 @@ public class CoffeeLeaf {
 	public static void main(String[] args) {
 
 		UMLModel model = new UMLModel("default");
+		
+		UMLPackage pkg = model.getRootPackage().findOrCreatePackage("fr").findOrCreatePackage("m4x1m3").findOrCreatePackage("test");
 
 		UMLClass main = new UMLClass("Main", UMLAccessLevel.PUBLIC, UMLClassType.CLASS, false);
 		
 		UMLMethod mainmeth = new UMLMethod("main", Primitives.VOID, UMLAccessLevel.PUBLIC, false, true, false);
+
+		UMLClass test = new UMLClass("Test", UMLAccessLevel.PUBLIC, UMLClassType.CLASS, false);
+		
+		UMLRelation rel = new UMLRelation(main, test, UMLRelationType.USE, UMLRelationDirection.RIGHT);
 		
 		main.addMethod(mainmeth);
+
+		pkg.addClass(main);
+		pkg.addClass(test);
+		model.addRelation(rel);
 		
-		model.getRootPackage().addClass(main);
+		for(UMLClass c : model.getClasses()) {
+			System.err.println(c.getFullName());
+		}
 		
-		
-		PUMLGenerator out = new PUMLGenerator(System.out);
+		IGenerator out = new PUMLGenerator(System.out);
 		out.generate(model);
 	}
 }

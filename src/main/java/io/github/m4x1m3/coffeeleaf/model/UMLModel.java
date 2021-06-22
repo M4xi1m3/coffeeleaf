@@ -18,9 +18,7 @@
  */
 package io.github.m4x1m3.coffeeleaf.model;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLClass;
@@ -46,7 +44,7 @@ public class UMLModel {
 	/**
 	 * Classes present in the model
 	 */
-	private Map<String, UMLClass> classes;
+	private Set<UMLClass> classes;
 
 	/**
 	 * Root package of the model
@@ -62,7 +60,7 @@ public class UMLModel {
 		this.name = name;
 		this.rootpkg = new UMLRootPackage(this);
 		this.relations = new HashSet<UMLRelation>();
-		this.classes = new HashMap<String, UMLClass>();
+		this.classes = new HashSet<UMLClass>();
 	}
 
 	/**
@@ -98,7 +96,7 @@ public class UMLModel {
 	 * @param clazz Class to add
 	 */
 	public void addClass(UMLClass clazz) {
-		this.classes.put(clazz.getFullName(), clazz);
+		this.classes.add(clazz);
 	}
 
 	/**
@@ -115,7 +113,7 @@ public class UMLModel {
 	 * 
 	 * @return Map. Key is the full name of the class, value is the class.
 	 */
-	public Map<String, UMLClass> getClasses() {
+	public Set<UMLClass> getClasses() {
 		return classes;
 	}
 

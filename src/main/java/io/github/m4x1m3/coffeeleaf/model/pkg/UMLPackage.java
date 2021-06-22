@@ -21,6 +21,7 @@ package io.github.m4x1m3.coffeeleaf.model.pkg;
 import java.util.ArrayDeque;
 import java.util.HashSet;
 
+import io.github.m4x1m3.coffeeleaf.model.UMLModel;
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLClass;
 
 /**
@@ -79,7 +80,7 @@ public class UMLPackage {
 
 		if (pkg == null) {
 			pkg = new UMLPackage(name);
-			subPackages.add(pkg);
+			this.addPackage(pkg);
 		}
 
 		return pkg;
@@ -209,7 +210,35 @@ public class UMLPackage {
 	 */
 	public void addClass(UMLClass umlClass) {
 		umlClass.setParent(this);
+		this.getModel().addClass(umlClass);
 		this.subClasses.add(umlClass);
+	}
+
+	/**
+	 * Get the root package
+	 * 
+	 * @return The root package
+	 */
+	public UMLRootPackage getRoot() {
+		UMLPackage pkg = this;
+		while (!(pkg instanceof UMLRootPackage) && pkg != null) {
+			pkg = pkg.parent;
+		}
+
+		return (UMLRootPackage) pkg;
+	}
+
+	/**
+	 * Get the model
+	 * 
+	 * @return The model
+	 */
+	public UMLModel getModel() {
+		UMLRootPackage root = this.getRoot();
+		if (root != null) {
+			return root.getModel();
+		}
+		return null;
 	}
 
 }
