@@ -18,18 +18,13 @@
  */
 package io.github.m4x1m3.coffeeleaf.main;
 
+import java.util.Set;
+
 import io.github.m4x1m3.coffeeleaf.generator.IGenerator;
 import io.github.m4x1m3.coffeeleaf.generator.puml.PUMLGenerator;
+import io.github.m4x1m3.coffeeleaf.loader.ILoader;
+import io.github.m4x1m3.coffeeleaf.loader.java.JavaLoader;
 import io.github.m4x1m3.coffeeleaf.model.UMLModel;
-import io.github.m4x1m3.coffeeleaf.model.cls.UMLAccessLevel;
-import io.github.m4x1m3.coffeeleaf.model.cls.UMLClass;
-import io.github.m4x1m3.coffeeleaf.model.cls.UMLClassType;
-import io.github.m4x1m3.coffeeleaf.model.cls.UMLMethod;
-import io.github.m4x1m3.coffeeleaf.model.pkg.UMLPackage;
-import io.github.m4x1m3.coffeeleaf.model.pri.Primitives;
-import io.github.m4x1m3.coffeeleaf.model.rel.UMLRelation;
-import io.github.m4x1m3.coffeeleaf.model.rel.UMLRelationDirection;
-import io.github.m4x1m3.coffeeleaf.model.rel.UMLRelationType;
 
 /**
  * Main class
@@ -38,30 +33,11 @@ import io.github.m4x1m3.coffeeleaf.model.rel.UMLRelationType;
  */
 public class CoffeeLeaf {
 	public static void main(String[] args) {
-
-		UMLModel model = new UMLModel("default");
-		
-		UMLPackage pkg = model.getRootPackage().findOrCreatePackage("fr").findOrCreatePackage("m4x1m3").findOrCreatePackage("test");
-
-		UMLClass main = new UMLClass("Main", UMLAccessLevel.PUBLIC, UMLClassType.CLASS, false);
-		
-		UMLMethod mainmeth = new UMLMethod("main", Primitives.VOID, UMLAccessLevel.PUBLIC, false, true, false);
-
-		UMLClass test = new UMLClass("Test", UMLAccessLevel.PUBLIC, UMLClassType.CLASS, false);
-		
-		UMLRelation rel = new UMLRelation(main, test, UMLRelationType.USE, UMLRelationDirection.RIGHT);
-		
-		main.addMethod(mainmeth);
-
-		pkg.addClass(main);
-		pkg.addClass(test);
-		model.addRelation(rel);
-		
-		for(UMLClass c : model.getClasses()) {
-			System.err.println(c.getFullName());
-		}
+		ILoader in = new JavaLoader();
+		Set<UMLModel> models = in.load();
 		
 		IGenerator out = new PUMLGenerator(System.out);
-		out.generate(model);
+		
+		models.forEach(m -> out.generate(m));
 	}
 }

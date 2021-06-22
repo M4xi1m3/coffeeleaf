@@ -7,7 +7,9 @@
 		<artifactId>coffeeleaf</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<artifactId>main</artifactId>
+	<artifactId>loader-java</artifactId>
+	<name>Java loader</name>
+	<description>Load model from java code</description>
 
 	<packaging>jar</packaging>
 
@@ -15,16 +17,6 @@
 		<dependency>
 			<groupId>${project.groupId}</groupId>
 			<artifactId>core</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>generator-puml</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>${project.groupId}</groupId>
-			<artifactId>loader-java</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
