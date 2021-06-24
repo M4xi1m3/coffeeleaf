@@ -20,6 +20,7 @@ package io.github.m4x1m3.coffeeleaf.generator.puml;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.List;
 
 import io.github.m4x1m3.coffeeleaf.generator.IGenerator;
 import io.github.m4x1m3.coffeeleaf.model.UMLModel;
@@ -28,6 +29,7 @@ import io.github.m4x1m3.coffeeleaf.model.cls.UMLClass;
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLClassType;
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLConstructor;
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLField;
+import io.github.m4x1m3.coffeeleaf.model.cls.UMLGeneric;
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLMethod;
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLParameter;
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLTemplateClass;
@@ -67,7 +69,7 @@ public class PUMLGenerator implements IGenerator {
 	}
 
 	private void generatePackage(UMLPackage pkg) {
-		if (pkg.hasClasses() || !pkg.hasPackages()) {
+		if (pkg.hasClasses()) {
 			out.println("package " + pkg.getFullName() + " {");
 			pkg.getSubPackages().forEach(p -> generatePackage(p));
 			pkg.getSubClasses().forEach(c -> generateClasses(c));
@@ -191,6 +193,17 @@ public class PUMLGenerator implements IGenerator {
 		out.println();
 	}
 
+	private void generateGenerics(List<UMLGeneric> generics) {
+		if (generics.size() == 0)
+			return;
+
+		List<String> str = new ArrayList<String>();
+
+		generics.forEach(g -> str.add(g.getName()));
+
+		out.print("<" + String.join(", ", str) + ">");
+	}
+
 	private void generateClasses(UMLClass cls) {
 
 		if (cls instanceof UMLTemplateClass) {
@@ -203,6 +216,8 @@ public class PUMLGenerator implements IGenerator {
 		}
 
 		out.print(typeName(cls.getClassType()) + " " + cls.getName());
+
+		generateGenerics(cls.getGenerics());
 
 		if (cls.getClassType() != UMLClassType.CLASS && repeatType) {
 			out.print(" <<" + typeName(cls.getClassType()) + ">>");

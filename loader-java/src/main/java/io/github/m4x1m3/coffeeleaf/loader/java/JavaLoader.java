@@ -35,12 +35,14 @@ import com.github.javaparser.ast.body.FieldDeclaration;
 import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.TypeDeclaration;
-import com.github.javaparser.resolution.declarations.ResolvedConstructorDeclaration;
+import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import com.github.javaparser.ast.type.TypeParameter;
 import com.github.javaparser.resolution.declarations.ResolvedFieldDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedMethodDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedParameterDeclaration;
 import com.github.javaparser.resolution.declarations.ResolvedReferenceTypeDeclaration;
 import com.github.javaparser.resolution.types.ResolvedPrimitiveType;
+import com.github.javaparser.resolution.types.ResolvedReferenceType;
 import com.github.javaparser.resolution.types.ResolvedType;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
@@ -55,10 +57,15 @@ import io.github.m4x1m3.coffeeleaf.model.cls.UMLClass;
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLClassType;
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLConstructor;
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLField;
+import io.github.m4x1m3.coffeeleaf.model.cls.UMLGeneric;
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLMethod;
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLParameter;
+import io.github.m4x1m3.coffeeleaf.model.cls.UMLTemplateClass;
 import io.github.m4x1m3.coffeeleaf.model.pkg.UMLPackage;
 import io.github.m4x1m3.coffeeleaf.model.pri.Primitives;
+import io.github.m4x1m3.coffeeleaf.model.rel.UMLRelation;
+import io.github.m4x1m3.coffeeleaf.model.rel.UMLRelationDirection;
+import io.github.m4x1m3.coffeeleaf.model.rel.UMLRelationType;
 
 /**
  * Load from Java sourcecode
@@ -66,6 +73,8 @@ import io.github.m4x1m3.coffeeleaf.model.pri.Primitives;
  * @author Maxime "M4x1m3" FRIESS
  */
 public class JavaLoader implements ILoader {
+
+	boolean loadUse = false;
 
 	private UMLAccessLevel getAccessLevel(AccessSpecifier a) {
 		switch (a) {
@@ -139,14 +148,14 @@ public class JavaLoader implements ILoader {
 		UMLModel model = new UMLModel("defaut");
 
 		CombinedTypeSolver cts = new CombinedTypeSolver();
-		cts.add(new JavaParserTypeSolver("../../../eclipse/Fourmis/src/main/java"));
+		cts.add(new JavaParserTypeSolver("../core/src/main/java"));
 		cts.add(new ReflectionTypeSolver(true));
 
 		StaticJavaParser.getConfiguration().setSymbolResolver(new JavaSymbolSolver(cts));
 
 		try {
-			for (Path path : Files.walk(Paths.get("../../../eclipse/Fourmis/src/main/java"))
-					.filter(p -> p.toString().endsWith("java")).filter(Files::isRegularFile).toList()) {
+			for (Path path : Files.walk(Paths.get("../core/src/main/java")).filter(p -> p.toString().endsWith("java"))
+					.filter(Files::isRegularFile).toList()) {
 
 				try {
 					// Load the java file and parse it
@@ -179,6 +188,10 @@ public class JavaLoader implements ILoader {
 									classdec.isFinal());
 							pkg.addClass(clazz);
 
+							for (TypeParameter generic : classdec.getTypeParameters()) {
+								clazz.addGeneric(new UMLGeneric(generic.getNameAsString()));
+							}
+
 							for (FieldDeclaration field : classdec.getFields()) {
 								ResolvedFieldDeclaration decfield = field.resolve();
 								UMLAccessLevel fieldlevel = getAccessLevel(field.getAccessSpecifier());
@@ -186,6 +199,17 @@ public class JavaLoader implements ILoader {
 								UMLField umlfield = new UMLField(decfield.getName(),
 										this.getType(decfield.getType(), model), fieldlevel, field.isFinal(),
 										field.isStatic());
+
+								UMLClass c = this.getType(decfield.getType(), model);
+
+								if (loadUse) {
+									if (c.getClass().equals(UMLClass.class)
+											|| c.getClass().equals(UMLTemplateClass.class)) {
+										model.addRelation(new UMLRelation(clazz, c, UMLRelationType.USE,
+												UMLRelationDirection.UP));
+									}
+								}
+
 								clazz.addField(umlfield);
 							}
 
@@ -207,10 +231,10 @@ public class JavaLoader implements ILoader {
 
 								clazz.addMethod(umlmethod);
 							}
-							
+
 							for (ConstructorDeclaration constructor : classdec.getConstructors()) {
 								UMLAccessLevel constructorlevel = getAccessLevel(constructor.getAccessSpecifier());
-								
+
 								UMLConstructor umlconstructor = new UMLConstructor(constructorlevel);
 
 								for (Parameter param : constructor.getParameters()) {
@@ -222,6 +246,22 @@ public class JavaLoader implements ILoader {
 								}
 
 								clazz.addConstructor(umlconstructor);
+							}
+
+							for (ClassOrInterfaceType extend : classdec.getExtendedTypes()) {
+								ResolvedReferenceType t = extend.resolve();
+
+								UMLClass e = model.findClassOrCreateTemplate(t.getQualifiedName());
+								model.addRelation(
+										new UMLRelation(clazz, e, UMLRelationType.EXTENDS, UMLRelationDirection.UP));
+							}
+
+							for (ClassOrInterfaceType implement : classdec.getImplementedTypes()) {
+								ResolvedReferenceType t = implement.resolve();
+
+								UMLClass e = model.findClassOrCreateTemplate(t.getQualifiedName());
+								model.addRelation(
+										new UMLRelation(clazz, e, UMLRelationType.IMPLEMENTS, UMLRelationDirection.UP));
 							}
 						}
 					}

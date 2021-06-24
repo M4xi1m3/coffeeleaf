@@ -65,6 +65,11 @@ public class UMLClass {
 	private List<UMLConstructor> constructors;
 
 	/**
+	 * List of generic types of the class
+	 */
+	private List<UMLGeneric> generics;
+
+	/**
 	 * List of fields in the class
 	 */
 	private List<UMLField> fields;
@@ -84,8 +89,7 @@ public class UMLClass {
 	 * @param classType   Type of the class
 	 * @param isFinal     Whether or not the class is final
 	 */
-	public UMLClass(String name, UMLAccessLevel accessLevel, UMLClassType classType,
-			boolean isFinal) {
+	public UMLClass(String name, UMLAccessLevel accessLevel, UMLClassType classType, boolean isFinal) {
 		this.name = name;
 		this.parent = null;
 		this.accessLevel = accessLevel;
@@ -94,6 +98,7 @@ public class UMLClass {
 		this.methods = new ArrayList<UMLMethod>();
 		this.constructors = new ArrayList<UMLConstructor>();
 		this.fields = new ArrayList<UMLField>();
+		this.generics = new ArrayList<UMLGeneric>();
 	}
 
 	/**
@@ -208,6 +213,24 @@ public class UMLClass {
 	public void addField(UMLField field) {
 		field.setClazz(this);
 		this.fields.add(field);
+	}
+
+	/**
+	 * Add a generic type to the class
+	 * 
+	 * @param type Generic type to add
+	 */
+	public void addGeneric(UMLGeneric type) {
+		this.generics.add(type);
+	}
+
+	/**
+	 * Get the list of generic types
+	 * 
+	 * @return List of generics types
+	 */
+	public List<UMLGeneric> getGenerics() {
+		return this.generics;
 	}
 
 	/**

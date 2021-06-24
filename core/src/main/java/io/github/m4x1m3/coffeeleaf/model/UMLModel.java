@@ -18,7 +18,10 @@
  */
 package io.github.m4x1m3.coffeeleaf.model;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLClass;
@@ -154,22 +157,39 @@ public class UMLModel {
 	/**
 	 * Get the class associated with the absolute name, or create it as a template.
 	 * 
-	 * If name is "", return the root package
-	 * 
-	 * @param pack	Package inwhich the class is
+	 * @param pack Package inwhich the class is
 	 * @param name Class to find
 	 * @return Found or created package
 	 */
 	public UMLClass findClassOrCreateTemplate(UMLPackage pack, String name) {
-		for(UMLClass c : pack.getSubClasses()) {
+		for (UMLClass c : pack.getSubClasses()) {
 			if (c.getName().equals(name)) {
 				return c;
 			}
 		}
-		
+
 		UMLClass c = new UMLTemplateClass(name);
 		pack.addClass(c);
 		return c;
+	}
+
+	/**
+	 * Get the class associated with the absolute name, or create it as a template.
+	 * 
+	 * @param name Class to find
+	 * @return Found or created package
+	 */
+	public UMLClass findClassOrCreateTemplate(String name) {
+		String[] names = name.split("\\.");
+
+		if (names.length == 1) {
+			return findClassOrCreateTemplate(rootpkg, name);
+		} else {
+			String pkg = String.join(".", Arrays.copyOf(names, names.length - 1));
+			String nam = names[names.length - 1];
+			
+			return this.findClassOrCreateTemplate(this.findPackageOrCreate(pkg), nam);
+		}
 	}
 
 	@Override
