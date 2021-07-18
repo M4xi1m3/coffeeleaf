@@ -10,4 +10,21 @@
 	<artifactId>core</artifactId>
 	<name>CoffeeLeaf-Core</name>
 	<description>Contains the Core components of CoffeeLeaf</description>
+	<dependencies>
+		<dependency>
+			<groupId>org.yaml</groupId>
+			<artifactId>snakeyaml</artifactId>
+			<version>1.21</version>
+		</dependency>
+		<dependency>
+			<groupId>net.md-5</groupId>
+			<artifactId>bungeecord-config</artifactId>
+			<version>1.16-R0.4</version>
+		</dependency>
+		<dependency>
+			<groupId>org.reflections</groupId>
+			<artifactId>reflections</artifactId>
+			<version>0.9.12</version>
+		</dependency>
+	</dependencies>
 </project>

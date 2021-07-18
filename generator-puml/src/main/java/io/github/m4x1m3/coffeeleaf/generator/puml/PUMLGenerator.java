@@ -22,6 +22,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.github.m4x1m3.coffeeleaf.generator.Generator;
 import io.github.m4x1m3.coffeeleaf.generator.IGenerator;
 import io.github.m4x1m3.coffeeleaf.model.UMLModel;
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLAccessLevel;
@@ -39,18 +40,20 @@ import io.github.m4x1m3.coffeeleaf.model.pri.Primitives;
 import io.github.m4x1m3.coffeeleaf.model.rel.UMLRelation;
 import io.github.m4x1m3.coffeeleaf.model.rel.UMLRelationDirection;
 import io.github.m4x1m3.coffeeleaf.model.rel.UMLRelationType;
+import net.md_5.bungee.config.Configuration;
 
 /**
  * @author Maxime "M4x1m3" FRIESS
  *
  */
+@Generator("puml")
 public class PUMLGenerator implements IGenerator {
 	private PrintStream out;
 	private boolean accessLevelOnClass = false;
 	private boolean repeatType = false;
 
-	public PUMLGenerator(PrintStream out) {
-		this.out = out;
+	public PUMLGenerator() {
+		this.out = System.out;
 	}
 
 	public void generate(UMLModel model) {
@@ -241,5 +244,11 @@ public class PUMLGenerator implements IGenerator {
 
 		out.println("}");
 		out.println();
+	}
+
+	@Override
+	public void config(Configuration conf) {
+		// TODO Auto-generated method stub
+		
 	}
 }

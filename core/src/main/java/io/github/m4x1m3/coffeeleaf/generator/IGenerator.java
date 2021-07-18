@@ -19,6 +19,7 @@
 package io.github.m4x1m3.coffeeleaf.generator;
 
 import io.github.m4x1m3.coffeeleaf.model.UMLModel;
+import net.md_5.bungee.config.Configuration;
 
 /**
  * Interface implemented by UML generators
@@ -32,4 +33,10 @@ public interface IGenerator {
 	 * @param model Model to generate UML for
 	 */
 	void generate(UMLModel model);
+	
+	/**
+	 * Load generator's configuration
+	 * @param conf
+	 */
+	public void config(Configuration conf);
 }

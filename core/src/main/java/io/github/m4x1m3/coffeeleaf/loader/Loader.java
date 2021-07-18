@@ -18,27 +18,27 @@
  */
 package io.github.m4x1m3.coffeeleaf.loader;
 
-import java.util.Set;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-import io.github.m4x1m3.coffeeleaf.model.UMLModel;
-import net.md_5.bungee.config.Configuration;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
+@Documented
+@Retention(RUNTIME)
+@Target(TYPE)
 /**
- * Interface implemented by UML models loaders
+ * Annotation used to indicate provided class is an ILoader
  * 
  * @author Maxime "M4x1m3" FRIESS
+ *
  */
-public interface ILoader {
+public @interface Loader {
 	/**
-	 * Loads the models
+	 * Name of the loader
 	 * 
-	 * @return The loaded models
+	 * @return The name of the loader
 	 */
-	public Set<UMLModel> load();
-	
-	/**
-	 * Load loader's configuration
-	 * @param conf
-	 */
-	public void config(Configuration conf);
+	String value();
 }

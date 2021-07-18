@@ -50,6 +50,7 @@ import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeS
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
 import io.github.m4x1m3.coffeeleaf.loader.ILoader;
+import io.github.m4x1m3.coffeeleaf.loader.Loader;
 import io.github.m4x1m3.coffeeleaf.model.UMLModel;
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLAccessLevel;
 import io.github.m4x1m3.coffeeleaf.model.cls.UMLArray;
@@ -66,12 +67,14 @@ import io.github.m4x1m3.coffeeleaf.model.pri.Primitives;
 import io.github.m4x1m3.coffeeleaf.model.rel.UMLRelation;
 import io.github.m4x1m3.coffeeleaf.model.rel.UMLRelationDirection;
 import io.github.m4x1m3.coffeeleaf.model.rel.UMLRelationType;
+import net.md_5.bungee.config.Configuration;
 
 /**
  * Load from Java sourcecode
  * 
  * @author Maxime "M4x1m3" FRIESS
  */
+@Loader("java")
 public class JavaLoader implements ILoader {
 
 	boolean loadUse = false;
@@ -149,7 +152,7 @@ public class JavaLoader implements ILoader {
 
 		CombinedTypeSolver cts = new CombinedTypeSolver();
 		cts.add(new JavaParserTypeSolver("../core/src/main/java"));
-		cts.add(new ReflectionTypeSolver(true));
+		cts.add(new ReflectionTypeSolver(false));
 
 		StaticJavaParser.getConfiguration().setSymbolResolver(new JavaSymbolSolver(cts));
 
@@ -281,6 +284,12 @@ public class JavaLoader implements ILoader {
 		models.add(model);
 
 		return models;
+	}
+
+	@Override
+	public void config(Configuration conf) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

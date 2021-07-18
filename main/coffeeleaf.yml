@@ -1,0 +1,6 @@
+loader:
+    name: "java"
+    config:
+generator:
+    name: "puml"
+    config:

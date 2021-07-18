@@ -16,29 +16,29 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with CoffeeLeaf.  If not, see <https://www.gnu.org/licenses/>.
  */
-package io.github.m4x1m3.coffeeleaf.loader;
+package io.github.m4x1m3.coffeeleaf.generator;
 
-import java.util.Set;
+import static java.lang.annotation.ElementType.TYPE;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
-import io.github.m4x1m3.coffeeleaf.model.UMLModel;
-import net.md_5.bungee.config.Configuration;
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
+@Documented
+@Retention(RUNTIME)
+@Target(TYPE)
 /**
- * Interface implemented by UML models loaders
+ * Annotatioin used to indicate a class is an IGenerator
  * 
  * @author Maxime "M4x1m3" FRIESS
+ *
  */
-public interface ILoader {
+public @interface Generator {
 	/**
-	 * Loads the models
+	 * Name of the generator
 	 * 
-	 * @return The loaded models
+	 * @return The name of the generator
 	 */
-	public Set<UMLModel> load();
-	
-	/**
-	 * Load loader's configuration
-	 * @param conf
-	 */
-	public void config(Configuration conf);
+	String value();
 }

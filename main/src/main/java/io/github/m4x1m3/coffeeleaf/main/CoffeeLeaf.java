@@ -18,13 +18,19 @@
  */
 package io.github.m4x1m3.coffeeleaf.main;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Set;
 
+import io.github.m4x1m3.coffeeleaf.generator.Generators;
 import io.github.m4x1m3.coffeeleaf.generator.IGenerator;
-import io.github.m4x1m3.coffeeleaf.generator.puml.PUMLGenerator;
 import io.github.m4x1m3.coffeeleaf.loader.ILoader;
-import io.github.m4x1m3.coffeeleaf.loader.java.JavaLoader;
+import io.github.m4x1m3.coffeeleaf.loader.Loaders;
 import io.github.m4x1m3.coffeeleaf.model.UMLModel;
+import net.md_5.bungee.config.Configuration;
+import net.md_5.bungee.config.ConfigurationProvider;
+import net.md_5.bungee.config.YamlConfiguration;
 
 /**
  * Main class
@@ -32,14 +38,37 @@ import io.github.m4x1m3.coffeeleaf.model.UMLModel;
  * @author Maxime "M4x1m3" FRIESS
  */
 public class CoffeeLeaf {
+
 	public static void main(String[] args) {
-		ILoader in = new JavaLoader();
-		// in.load();
+		String name = "coffeeleaf.yml";
 
-		Set<UMLModel> models = in.load();
+		if (args.length == 1) {
+			name = args[0];
+		}
 
-		IGenerator out = new PUMLGenerator(System.out);
+		FileInputStream fis = null;
+		try {
+			File configf = new File(name);
+			fis = new FileInputStream(configf);
+		} catch (IOException e) {
+			System.err.println("Unable to load config file " + name);
+			e.printStackTrace();
+			System.exit(1);
+		}
 
-		models.forEach(m -> out.generate(m));
+		Configuration conf = ConfigurationProvider.getProvider(YamlConfiguration.class).load(fis);
+		
+		Loaders.load();
+		Generators.load();
+		
+		ILoader loader = Loaders.getLoader(conf.getString("loader.name"));
+		loader.config(conf.getSection("loader.config"));
+		
+		Set<UMLModel> models = loader.load();
+		
+		IGenerator generator = Generators.getGenerator(conf.getString("generator.name"));
+		generator.config(conf.getSection("generator.config"));
+		
+		models.forEach(m -> generator.generate(m));
 	}
 }
