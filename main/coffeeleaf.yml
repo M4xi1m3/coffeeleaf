@@ -14,3 +14,13 @@ loader:
 generator:
     name: "puml"
     config:
+        meta:
+            delimiters: true
+            header: true
+            comments: true
+            indent: "    "
+        class:
+            accesslevel: true
+            repeattype: true
+        output: "%s.puml"
+
