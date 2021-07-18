@@ -1,6 +1,16 @@
 loader:
     name: "java"
     config:
+        loaduse: true
+        solvers:
+            - type: "reflection"
+              jreonly: false
+            - type: "java"
+              path: "../core/src/main/java"
+        models:
+            - name: "CoffeeLeaf"
+              paths:
+                - "../core/src/main/java"
 generator:
     name: "puml"
     config:

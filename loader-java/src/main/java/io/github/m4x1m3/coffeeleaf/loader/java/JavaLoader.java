@@ -22,7 +22,10 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import com.github.javaparser.ParseProblemException;
@@ -45,7 +48,9 @@ import com.github.javaparser.resolution.types.ResolvedPrimitiveType;
 import com.github.javaparser.resolution.types.ResolvedReferenceType;
 import com.github.javaparser.resolution.types.ResolvedType;
 import com.github.javaparser.symbolsolver.JavaSymbolSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.AarTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.CombinedTypeSolver;
+import com.github.javaparser.symbolsolver.resolution.typesolvers.JarTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.JavaParserTypeSolver;
 import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
@@ -76,7 +81,8 @@ import net.md_5.bungee.config.Configuration;
  */
 @Loader("java")
 public class JavaLoader implements ILoader {
-
+	Map<String, List<String>> models = new HashMap<String, List<String>>();
+	CombinedTypeSolver cts = new CombinedTypeSolver();
 	boolean loadUse = false;
 
 	private UMLAccessLevel getAccessLevel(AccessSpecifier a) {
@@ -148,148 +154,192 @@ public class JavaLoader implements ILoader {
 	@Override
 	public Set<UMLModel> load() {
 
-		UMLModel model = new UMLModel("defaut");
+		HashSet<UMLModel> models = new HashSet<UMLModel>();
 
-		CombinedTypeSolver cts = new CombinedTypeSolver();
-		cts.add(new JavaParserTypeSolver("../core/src/main/java"));
-		cts.add(new ReflectionTypeSolver(false));
+		this.models.forEach((name, paths) -> {
+			UMLModel model = new UMLModel(name);
 
-		StaticJavaParser.getConfiguration().setSymbolResolver(new JavaSymbolSolver(cts));
+			StaticJavaParser.getConfiguration().setSymbolResolver(new JavaSymbolSolver(cts));
 
-		try {
-			for (Path path : Files.walk(Paths.get("../core/src/main/java")).filter(p -> p.toString().endsWith("java"))
-					.filter(Files::isRegularFile).toList()) {
+			paths.forEach((pathstr) -> {
 
 				try {
-					// Load the java file and parse it
-					CompilationUnit unit = null;
-					System.err.println("[SCANNING] " + path.toString());
+					for (Path path : Files.walk(Paths.get(pathstr)).filter(p -> p.toString().endsWith("java"))
+							.filter(Files::isRegularFile).toList()) {
 
-					try {
-						unit = StaticJavaParser.parse(path);
-					} catch (ParseProblemException e2) {
-						System.err.println("[WARNING] Error occured: " + e2.getMessage().split("\n")[0]);
-						continue;
-					}
+						try {
+							// Load the java file and parse it
+							CompilationUnit unit = null;
+							System.err.println("[SCANNING] " + path.toString());
 
-					// Get the package name
-					String packageName = "";
-
-					if (unit.getPackageDeclaration().isPresent())
-						packageName = unit.getPackageDeclaration().get().getNameAsString();
-
-					UMLPackage pkg = model.findPackageOrCreate(packageName);
-
-					// Get the primary type and scan it
-					if (unit.getPrimaryType().isPresent()) {
-						TypeDeclaration<?> type = unit.getPrimaryType().get();
-						if (type.isClassOrInterfaceDeclaration()) {
-							ClassOrInterfaceDeclaration classdec = type.asClassOrInterfaceDeclaration();
-							UMLAccessLevel classlevel = getAccessLevel(type.getAccessSpecifier());
-							UMLClassType classtype = getClassType(classdec);
-							UMLClass clazz = new UMLClass(type.getNameAsString(), classlevel, classtype,
-									classdec.isFinal());
-							pkg.addClass(clazz);
-
-							for (TypeParameter generic : classdec.getTypeParameters()) {
-								clazz.addGeneric(new UMLGeneric(generic.getNameAsString()));
+							try {
+								unit = StaticJavaParser.parse(path);
+							} catch (ParseProblemException e2) {
+								System.err.println("[WARNING] Error occured: " + e2.getMessage().split("\n")[0]);
+								continue;
 							}
 
-							for (FieldDeclaration field : classdec.getFields()) {
-								ResolvedFieldDeclaration decfield = field.resolve();
-								UMLAccessLevel fieldlevel = getAccessLevel(field.getAccessSpecifier());
+							// Get the package name
+							String packageName = "";
 
-								UMLField umlfield = new UMLField(decfield.getName(),
-										this.getType(decfield.getType(), model), fieldlevel, field.isFinal(),
-										field.isStatic());
+							if (unit.getPackageDeclaration().isPresent())
+								packageName = unit.getPackageDeclaration().get().getNameAsString();
 
-								UMLClass c = this.getType(decfield.getType(), model);
+							UMLPackage pkg = model.findPackageOrCreate(packageName);
 
-								if (loadUse) {
-									if (c.getClass().equals(UMLClass.class)
-											|| c.getClass().equals(UMLTemplateClass.class)) {
-										model.addRelation(new UMLRelation(clazz, c, UMLRelationType.USE,
+							// Get the primary type and scan it
+							if (unit.getPrimaryType().isPresent()) {
+								TypeDeclaration<?> type = unit.getPrimaryType().get();
+								if (type.isClassOrInterfaceDeclaration()) {
+									ClassOrInterfaceDeclaration classdec = type.asClassOrInterfaceDeclaration();
+									UMLAccessLevel classlevel = getAccessLevel(type.getAccessSpecifier());
+									UMLClassType classtype = getClassType(classdec);
+									UMLClass clazz = new UMLClass(type.getNameAsString(), classlevel, classtype,
+											classdec.isFinal());
+									pkg.addClass(clazz);
+
+									for (TypeParameter generic : classdec.getTypeParameters()) {
+										clazz.addGeneric(new UMLGeneric(generic.getNameAsString()));
+									}
+
+									for (FieldDeclaration field : classdec.getFields()) {
+										ResolvedFieldDeclaration decfield = field.resolve();
+										UMLAccessLevel fieldlevel = getAccessLevel(field.getAccessSpecifier());
+
+										UMLField umlfield = new UMLField(decfield.getName(),
+												this.getType(decfield.getType(), model), fieldlevel, field.isFinal(),
+												field.isStatic());
+
+										UMLClass c = this.getType(decfield.getType(), model);
+
+										if (loadUse) {
+											if (c.getClass().equals(UMLClass.class)
+													|| c.getClass().equals(UMLTemplateClass.class)) {
+												model.addRelation(new UMLRelation(clazz, c, UMLRelationType.USE,
+														UMLRelationDirection.UP));
+											}
+										}
+
+										clazz.addField(umlfield);
+									}
+
+									for (MethodDeclaration method : classdec.getMethods()) {
+										ResolvedMethodDeclaration decmethod = method.resolve();
+										UMLAccessLevel methodlevel = getAccessLevel(method.getAccessSpecifier());
+
+										UMLMethod umlmethod = new UMLMethod(decmethod.getName(),
+												this.getType(decmethod.getReturnType(), model), methodlevel,
+												method.isAbstract(), method.isStatic(), method.isFinal());
+
+										for (Parameter param : method.getParameters()) {
+											ResolvedParameterDeclaration decparam = param.resolve();
+
+											UMLParameter umlparam = new UMLParameter(
+													this.getType(decparam.getType(), model), param.getNameAsString(),
+													decparam.isVariable(), umlmethod);
+											umlmethod.addParam(umlparam);
+										}
+
+										clazz.addMethod(umlmethod);
+									}
+
+									for (ConstructorDeclaration constructor : classdec.getConstructors()) {
+										UMLAccessLevel constructorlevel = getAccessLevel(
+												constructor.getAccessSpecifier());
+
+										UMLConstructor umlconstructor = new UMLConstructor(constructorlevel);
+
+										for (Parameter param : constructor.getParameters()) {
+											ResolvedParameterDeclaration decparam = param.resolve();
+
+											UMLParameter umlparam = new UMLParameter(
+													this.getType(decparam.getType(), model), param.getNameAsString(),
+													decparam.isVariable(), umlconstructor);
+											umlconstructor.addParam(umlparam);
+										}
+
+										clazz.addConstructor(umlconstructor);
+									}
+
+									for (ClassOrInterfaceType extend : classdec.getExtendedTypes()) {
+										ResolvedReferenceType t = extend.resolve();
+
+										UMLClass e = model.findClassOrCreateTemplate(t.getQualifiedName());
+										model.addRelation(new UMLRelation(clazz, e, UMLRelationType.EXTENDS,
+												UMLRelationDirection.UP));
+									}
+
+									for (ClassOrInterfaceType implement : classdec.getImplementedTypes()) {
+										ResolvedReferenceType t = implement.resolve();
+
+										UMLClass e = model.findClassOrCreateTemplate(t.getQualifiedName());
+										model.addRelation(new UMLRelation(clazz, e, UMLRelationType.IMPLEMENTS,
 												UMLRelationDirection.UP));
 									}
 								}
-
-								clazz.addField(umlfield);
 							}
 
-							for (MethodDeclaration method : classdec.getMethods()) {
-								ResolvedMethodDeclaration decmethod = method.resolve();
-								UMLAccessLevel methodlevel = getAccessLevel(method.getAccessSpecifier());
-
-								UMLMethod umlmethod = new UMLMethod(decmethod.getName(),
-										this.getType(decmethod.getReturnType(), model), methodlevel,
-										method.isAbstract(), method.isStatic(), method.isFinal());
-
-								for (Parameter param : method.getParameters()) {
-									ResolvedParameterDeclaration decparam = param.resolve();
-
-									UMLParameter umlparam = new UMLParameter(this.getType(decparam.getType(), model),
-											param.getNameAsString(), decparam.isVariable(), umlmethod);
-									umlmethod.addParam(umlparam);
-								}
-
-								clazz.addMethod(umlmethod);
-							}
-
-							for (ConstructorDeclaration constructor : classdec.getConstructors()) {
-								UMLAccessLevel constructorlevel = getAccessLevel(constructor.getAccessSpecifier());
-
-								UMLConstructor umlconstructor = new UMLConstructor(constructorlevel);
-
-								for (Parameter param : constructor.getParameters()) {
-									ResolvedParameterDeclaration decparam = param.resolve();
-
-									UMLParameter umlparam = new UMLParameter(this.getType(decparam.getType(), model),
-											param.getNameAsString(), decparam.isVariable(), umlconstructor);
-									umlconstructor.addParam(umlparam);
-								}
-
-								clazz.addConstructor(umlconstructor);
-							}
-
-							for (ClassOrInterfaceType extend : classdec.getExtendedTypes()) {
-								ResolvedReferenceType t = extend.resolve();
-
-								UMLClass e = model.findClassOrCreateTemplate(t.getQualifiedName());
-								model.addRelation(
-										new UMLRelation(clazz, e, UMLRelationType.EXTENDS, UMLRelationDirection.UP));
-							}
-
-							for (ClassOrInterfaceType implement : classdec.getImplementedTypes()) {
-								ResolvedReferenceType t = implement.resolve();
-
-								UMLClass e = model.findClassOrCreateTemplate(t.getQualifiedName());
-								model.addRelation(
-										new UMLRelation(clazz, e, UMLRelationType.IMPLEMENTS, UMLRelationDirection.UP));
-							}
+						} catch (IOException e) {
+							e.printStackTrace();
 						}
 					}
 
 				} catch (IOException e) {
+					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-			}
+			});
 
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		HashSet<UMLModel> models = new HashSet<UMLModel>();
-
-		models.add(model);
+			models.add(model);
+		});
 
 		return models;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void config(Configuration conf) {
-		// TODO Auto-generated method stub
-		
+		this.loadUse = conf.getBoolean("loaduse");
+		List<Map<String, Object>> solvers = (List<Map<String, Object>>) conf.getList("solvers");
+		for (Map<String, Object> solver : solvers) {
+			String type = (String) solver.get("type");
+
+			// TODO: Rewrite using interfaces and a Map
+			switch (type) {
+			case "reflection":
+				cts.add(new ReflectionTypeSolver((boolean) solver.get("jreonly")));
+				break;
+			case "java":
+				cts.add(new JavaParserTypeSolver((String) solver.get("path")));
+				break;
+			case "aar":
+				try {
+					cts.add(new AarTypeSolver((String) solver.get("path")));
+				} catch (IOException e) {
+					System.err.println("[ERROR] Can't add aar solver!");
+					e.printStackTrace();
+				}
+				break;
+			case "jar":
+				try {
+					cts.add(new JarTypeSolver((String) solver.get("path")));
+				} catch (IOException e) {
+					System.err.println("[ERROR] Can't add jar solver!");
+					e.printStackTrace();
+				}
+				break;
+			}
+
+			System.err.println("[LOADER] Registered loader type " + solver.get("type"));
+		}
+
+		List<Map<String, Object>> models = (List<Map<String, Object>>) conf.getList("models");
+
+		for (Map<String, Object> model : models) {
+			String name = (String) model.get("name");
+			List<String> paths = (List<String>) model.get("paths");
+			this.models.put(name, paths);
+		}
 	}
 
 }
